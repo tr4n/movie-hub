@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:moviehub/extension/context_ext.dart';
 import 'package:moviehub/ui/components/components.dart';
-import 'package:moviehub/ui/home/home_page.dart';
-import 'package:moviehub/ui/search/search_page.dart';
-import 'package:moviehub/ui/watch_list/watch_list_page.dart';
 
-import '../resources/resources.dart';
+import '../../../resources/resources.dart';
+import '../home/home_page.dart';
+import '../search/search_page.dart';
+import '../watch_list/watch_list_page.dart';
 
 void main() {
   runApp(const App());
@@ -79,14 +79,14 @@ class _MainPageState extends State<MainPage> {
       name: "Search",
       page: SearchPage(),
       title: "Search",
-      icon: "assets/icons/ic_home.png",
+      icon: "assets/icons/ic_search.png",
     ),
     ScreenTab(
       index: 2,
       name: "Watch List",
       page: WatchListPage(),
       title: 'Watch List',
-      icon: "assets/icons/ic_home.png",
+      icon: "assets/icons/ic_book_mark.png",
     ),
   ];
 
@@ -130,16 +130,7 @@ class _MainPageState extends State<MainPage> {
         backgroundColor: AppColor.colorGray242A32,
         elevation: 0,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-          ],
-        ),
-      ),
+      body: _screens[_selectedIndex].page,
       bottomNavigationBar: Wrap(children: [
         Container(
           width: context.getWidth(),
@@ -148,20 +139,23 @@ class _MainPageState extends State<MainPage> {
         ),
         BottomNavigationBar(
           items: _screens
-              .map((screen) => BottomNavigationBarItem(
-                    icon: Padding(
-                      padding: const EdgeInsets.all(Sizes.size8),
-                      child: Image.asset(
-                        screen.icon,
-                        width: 24,
-                        height: 24,
-                        color: _getSelectedColor(screen.index),
-                      ),
+              .map(
+                (screen) => BottomNavigationBarItem(
+                  icon: Padding(
+                    padding: const EdgeInsets.all(Sizes.size8),
+                    child: Image.asset(
+                      screen.icon,
+                      width: 24,
+                      height: 24,
+                      color: _getSelectedColor(screen.index),
                     ),
-                    label: screen.name,
-                  ))
+                  ),
+                  label: screen.name,
+                ),
+              )
               .toList(),
           onTap: _onItemTap,
+          currentIndex: _selectedIndex,
           selectedItemColor: AppColor.colorBlue0296E5,
         ),
       ]),
