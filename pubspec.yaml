@@ -69,7 +69,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
-    - assets/images/
     - assets/icons/
 
   # To add assets to your application, add an assets section, like this:
@@ -99,6 +98,9 @@ flutter:
           weight: 700
         - asset: assets/fonts/open_sans_semibold.ttf
           weight: 700
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/montserrat_semi_bold.otf
 
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

@@ -48,16 +48,6 @@ class App extends StatelessWidget {
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -122,7 +112,7 @@ class _MainPageState extends State<MainPage> {
         title: DefaultTextStyle(
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 16,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
           child: Text(_screens[_selectedIndex].title),
@@ -135,7 +125,7 @@ class _MainPageState extends State<MainPage> {
         Container(
           width: context.getWidth(),
           height: 1.0,
-          color: const Color(0xff0296E5),
+          color: AppColor.colorBlue0296E5,
         ),
         BottomNavigationBar(
           items: _screens
