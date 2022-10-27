@@ -62,7 +62,7 @@ class _WatchListPageState extends State<WatchListPage> {
             type: "Action",
             releaseDate: "2020",
             duration: "129",
-            imageUrl: "https://api.lorem.space/image/book?w=150&h=230");
+            imageUrl: "https://api.lorem.space/image/movie?w=150&h=220");
       },
       separatorBuilder: (BuildContext context, int index) {
         return const SizedBox(height: Sizes.size24);

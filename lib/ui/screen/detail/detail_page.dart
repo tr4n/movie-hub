@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:moviehub/ui/components/top_movie_widget.dart';
+import 'package:moviehub/extension/context_ext.dart';
 
 import '../../../resources/resources.dart';
 
 class DetailPage extends StatefulWidget {
+  const DetailPage({super.key});
+
   @override
   State<StatefulWidget> createState() => _DetailPageState();
 }
@@ -14,63 +16,114 @@ class _DetailPageState extends State<DetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical,
-      child: Column(
-        children: [_buildTop5(), _buildTabs()],
-      ),
-    );
-  }
-
-  Widget _buildTop5() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Container(
-        margin: const EdgeInsets.only(left: 20, top: 20),
-        child: Row(
-          children: [1, 2, 3, 4, 5].map((e) => Top5MovieWidget(top: e, imageUrl: "")).toList(),
+    return Scaffold(
+      appBar: AppBar(
+        leading: Padding(
+            padding: const EdgeInsets.all(Sizes.size8),
+            child: Image.asset("assets/icons/ic_left_arrow.png",
+                width: Sizes.size20, height: Sizes.size20)),
+        centerTitle: true,
+        actions: [
+          Image.asset("assets/icons/ic_book_mark_filled.png",
+              width: Sizes.size18, height: Sizes.size24),
+          const SizedBox(width: Sizes.size24),
+        ],
+        title: const DefaultTextStyle(
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+          child: Text("Detail"),
         ),
+        backgroundColor: AppColor.gray242A32,
+        elevation: 0,
+      ),
+      body: Column(
+        children: [
+          _buildMovieBackdrop(),
+        ],
       ),
     );
   }
 
-  Widget _buildTabs() {
-    return Column(
+  Widget _buildMovieBackdrop() {
+    return Stack(
       children: [
-        DefaultTabController(
-          length: _tabs.length,
-          // body: Text(_tabs[_selectedTabIndex]),
-          child: TabBar(
-            isScrollable: true,
-            indicatorColor: AppColor.gray3A3F47,
-            indicatorPadding: const EdgeInsets.only(
-                top: Sizes.size16, left: Sizes.size16, right: Sizes.size16),
-            tabs: _tabs.map((e) => Tab(text: e)).toList(),
+        SizedBox(width: context.getWidth(), height: 270),
+        ClipRRect(
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(Sizes.size16),
+            bottomRight: Radius.circular(Sizes.size16),
+          ),
+          child: FadeInImage.assetNetwork(
+            placeholder: "assets/images/img_placeholder.png",
+            image: "https://api.lorem.space/image/movie?w=375&h=220",
+            width: context.getWidth(),
+            height: 210,
+            fit: BoxFit.fill,
           ),
         ),
-        const SizedBox(height: 20),
-        GridView.count(
-          shrinkWrap: true,
-          primary: false,
-          padding: const EdgeInsets.all(8),
-          crossAxisCount: 3,
-          mainAxisSpacing: 18,
-          crossAxisSpacing: 14,
-          childAspectRatio: 100 / 145,
-          children: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((e) {
-            return ClipRRect(
-              borderRadius: BorderRadius.circular(Sizes.size16),
-              child: FadeInImage.assetNetwork(
-                placeholder:  "assets/images/img_placeholder.png",
-                image: "https://api.lorem.space/image/book?w=150&h=220",
-                fit: BoxFit.cover,
+        Positioned(
+          bottom: 0,
+          left: 30,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(Sizes.size16),
+                child: FadeInImage.assetNetwork(
+                  placeholder: "assets/images/img_placeholder.png",
+                  image: "https://api.lorem.space/image/movie?w=95&h=120",
+                  width: 95,
+                  height: 120,
+                  fit: BoxFit.fill,
+                ),
               ),
-            );
-          }).toList(),
+              const SizedBox(width: Sizes.size12),
+              const Padding(
+                padding: EdgeInsets.only(bottom: Sizes.size8),
+                child: DefaultTextStyle(
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  child: Text("Spiderman No Way Home"),
+                ),
+              ),
+              const SizedBox(width: Sizes.size30),
+            ],
+          ),
         ),
-        // Center(
-        //   child: Text(_tabs[_selectedTabIndex]),
-        // )
+        Positioned(
+          top: 178,
+          right: 12,
+          child: Container(
+              padding: const EdgeInsets.symmetric(
+                  horizontal: Sizes.size8, vertical: Sizes.size4),
+              decoration: BoxDecoration(
+                  color: AppColor.gray3A3F47,
+                  borderRadius:
+                      const BorderRadius.all(Radius.circular(Sizes.size8))),
+              child: Wrap(
+                alignment: WrapAlignment.end,
+                runAlignment: WrapAlignment.end,
+                children: [
+                  Image.asset(
+                    "assets/icons/ic_star.png",
+                    width: 16,
+                    height: 16,
+                  ),
+                  const SizedBox(width: Sizes.size4),
+                  DefaultTextStyle(
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColor.orangeFF8700,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    child: const Text("9.5"),
+                  ),
+                ],
+              )),
+        )
       ],
     );
   }

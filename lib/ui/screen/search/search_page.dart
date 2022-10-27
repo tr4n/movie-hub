@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moviehub/ui/components/components.dart';
+import 'package:moviehub/ui/screen/detail/detail_page.dart';
 
 import '../../../resources/resources.dart';
 
@@ -89,12 +90,17 @@ class _SearchPageState extends State<SearchPage> {
               itemCount: names.length,
               itemBuilder: (BuildContext context, int index) {
                 return ItemMovieInformation(
-                    title: names[index],
-                    rate: "9.5",
-                    type: "Action",
-                    releaseDate: "2020",
-                    duration: "129",
-                    imageUrl: "https://api.lorem.space/image/book?w=150&h=230");
+                  title: names[index],
+                  rate: "9.5",
+                  type: "Action",
+                  releaseDate: "2020",
+                  duration: "129",
+                  imageUrl: "https://api.lorem.space/image/movie?w=150&h=220",
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => const DetailPage()));
+                  },
+                );
               },
               separatorBuilder: (BuildContext context, int index) {
                 return const SizedBox(height: Sizes.size24);
