@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> {
       child: Container(
         margin: const EdgeInsets.only(left: 20, top: 20),
         child: Row(
-          children: [1, 2, 3, 4, 5].map((e) => Top5MovieWidget(e, "")).toList(),
+          children: [1, 2, 3, 4, 5].map((e) => Top5MovieWidget(top: e, imageUrl: "")).toList(),
         ),
       ),
     );
@@ -42,7 +42,7 @@ class _HomePageState extends State<HomePage> {
           // body: Text(_tabs[_selectedTabIndex]),
           child: TabBar(
             isScrollable: true,
-            indicatorColor: AppColor.colorGray3A3F47,
+            indicatorColor: AppColor.gray3A3F47,
             indicatorPadding: const EdgeInsets.only(
                 top: Sizes.size16, left: Sizes.size16, right: Sizes.size16),
             tabs: _tabs.map((e) => Tab(text: e)).toList(),
@@ -60,8 +60,9 @@ class _HomePageState extends State<HomePage> {
           children: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((e) {
             return ClipRRect(
               borderRadius: BorderRadius.circular(Sizes.size16),
-              child: Image.network(
-                "https://api.lorem.space/image/book?w=150&h=220",
+              child: FadeInImage.assetNetwork(
+                placeholder:  "assets/images/img_placeholder.png",
+                image: "https://api.lorem.space/image/book?w=150&h=220",
                 fit: BoxFit.cover,
               ),
             );

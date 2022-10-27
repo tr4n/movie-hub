@@ -1,19 +1,18 @@
-import 'package:flutter/cupertino.dart';
-import 'package:moviehub/extension/context_ext.dart';
+import 'package:flutter/material.dart';
 import 'package:moviehub/resources/colors.dart';
 
 import '../../resources/app_sizes.dart';
 
 class Top5MovieWidget extends StatelessWidget {
-  final int _top;
-  final String _imageUrl;
+  final int top;
+  final String imageUrl;
 
-  const Top5MovieWidget(this._top, this._imageUrl, {super.key});
+  const Top5MovieWidget({required this.top, required this.imageUrl, super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(right: Sizes.size30),
+      margin: const EdgeInsets.only(right: Sizes.size30),
       child: Stack(
         children: [
           const SizedBox(width: 160, height: 250),
@@ -22,15 +21,16 @@ class Top5MovieWidget extends StatelessWidget {
             bottom: 40,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(Sizes.size16),
-              child: Image.network(
-                "https://image.shutterstock.com/image-photo/mountains-under-mist-morning-amazing-260nw-1725825019.jpg",
+              child: FadeInImage.assetNetwork(
+                placeholder:  "assets/images/img_placeholder.png",
+                image: "https://api.lorem.space/image/book?w=150&h=220",
                 width: 145,
                 height: 210,
                 fit: BoxFit.cover,
               ),
             ),
           ),
-          Positioned(bottom: 0, child: _buildTopNumber(_top)),
+          Positioned(bottom: 0, child: _buildTopNumber(top)),
         ],
       ),
     );
@@ -42,24 +42,24 @@ class Top5MovieWidget extends StatelessWidget {
           fontFamily: "Montserrat",
           fontWeight: FontWeight.bold,
           fontSize: 100,
-          color: AppColor.colorGray242A32,
+          color: AppColor.gray242A32,
           shadows: [
             Shadow(
                 // bottomLeft
                 offset: const Offset(-0.5, -0.5),
-                color: AppColor.colorBlue0296E5),
+                color: AppColor.blue0296E5),
             Shadow(
                 // bottomRight
                 offset: const Offset(0.5, -0.5),
-                color: AppColor.colorBlue0296E5),
+                color: AppColor.blue0296E5),
             Shadow(
-              // topRight
+                // topRight
                 offset: const Offset(0.5, 0.5),
-                color: AppColor.colorBlue0296E5),
+                color: AppColor.blue0296E5),
             Shadow(
-              // topLeft
+                // topLeft
                 offset: const Offset(-1, 1),
-                color: AppColor.colorBlue0296E5),
+                color: AppColor.blue0296E5),
           ]),
       child: Text(top.toString()),
     );

@@ -32,12 +32,12 @@ class App extends StatelessWidget {
               const AppBarTheme(systemOverlayStyle: SystemUiOverlayStyle.dark)),
       darkTheme: ThemeData(
           fontFamily: "Open Sans",
-          primaryColor: AppColor.colorGray242A32,
-          primaryColorLight: AppColor.colorGray242A32,
+          primaryColor: AppColor.gray242A32,
+          primaryColorLight: AppColor.gray242A32,
           brightness: Brightness.dark,
-          primaryColorDark: AppColor.colorGray242A32,
+          primaryColorDark: AppColor.gray242A32,
           indicatorColor: Colors.white,
-          canvasColor: AppColor.colorGray242A32,
+          canvasColor: AppColor.gray242A32,
           // next line is important!
           appBarTheme: const AppBarTheme(
               systemOverlayStyle: SystemUiOverlayStyle.light)),
@@ -88,8 +88,8 @@ class _MainPageState extends State<MainPage> {
 
   Color _getSelectedColor(int index) {
     return _selectedIndex == index
-        ? AppColor.colorBlue0296E5
-        : AppColor.colorGray67686D;
+        ? AppColor.blue0296E5
+        : AppColor.gray67686D;
   }
 
   @override
@@ -117,7 +117,7 @@ class _MainPageState extends State<MainPage> {
           ),
           child: Text(_screens[_selectedIndex].title),
         ),
-        backgroundColor: AppColor.colorGray242A32,
+        backgroundColor: AppColor.gray242A32,
         elevation: 0,
       ),
       body: _screens[_selectedIndex].page,
@@ -125,7 +125,7 @@ class _MainPageState extends State<MainPage> {
         Container(
           width: context.getWidth(),
           height: 1.0,
-          color: AppColor.colorBlue0296E5,
+          color: AppColor.blue0296E5,
         ),
         BottomNavigationBar(
           items: _screens
@@ -146,7 +146,7 @@ class _MainPageState extends State<MainPage> {
               .toList(),
           onTap: _onItemTap,
           currentIndex: _selectedIndex,
-          selectedItemColor: AppColor.colorBlue0296E5,
+          selectedItemColor: AppColor.blue0296E5,
         ),
       ]),
     );
