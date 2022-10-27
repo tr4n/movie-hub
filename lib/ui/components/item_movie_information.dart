@@ -10,6 +10,8 @@ class ItemMovieInformation extends StatelessWidget {
   final String duration;
   final String imageUrl;
 
+  final Function()? onTap;
+
   const ItemMovieInformation(
       {required this.title,
       required this.rate,
@@ -17,6 +19,7 @@ class ItemMovieInformation extends StatelessWidget {
       required this.releaseDate,
       required this.duration,
       required this.imageUrl,
+      this.onTap,
       super.key});
 
   @override
