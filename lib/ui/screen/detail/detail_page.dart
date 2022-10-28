@@ -14,7 +14,7 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
   int _selectedTabIndex = 0;
-  final _tabs = ["Now playing", "Upcoming", "Top rated", "Popular"];
+  final _tabs = ["About Movie", "Reviews", "Cast"];
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +44,11 @@ class _DetailPageState extends State<DetailPage> {
       body: Column(
         children: [
           _buildMovieBackdrop(),
+          const SizedBox(height: Sizes.size16),
+          _buildMovieInformation(),
+          const SizedBox(height: Sizes.size24),
+          _buildTabs(),
+          Expanded(child: _buildCasts()),
         ],
       ),
     );
@@ -60,7 +65,8 @@ class _DetailPageState extends State<DetailPage> {
           ),
           child: FadeInImage.assetNetwork(
             placeholder: "assets/images/img_placeholder.png",
-            image: "https://api.lorem.space/image/movie?w=375&h=${220 + Random().nextInt(5)}",
+            image:
+                "https://api.lorem.space/image/movie?w=375&h=${220 + Random().nextInt(5)}",
             width: context.getWidth(),
             height: 210,
             fit: BoxFit.fill,
@@ -77,7 +83,8 @@ class _DetailPageState extends State<DetailPage> {
                 borderRadius: BorderRadius.circular(Sizes.size16),
                 child: FadeInImage.assetNetwork(
                   placeholder: "assets/images/img_placeholder.png",
-                  image: "https://api.lorem.space/image/movie?w=95&h=${220 + Random().nextInt(5)}",
+                  image:
+                      "https://api.lorem.space/image/movie?w=95&h=${220 + Random().nextInt(5)}",
                   width: 95,
                   height: 120,
                   fit: BoxFit.fill,
@@ -126,6 +133,131 @@ class _DetailPageState extends State<DetailPage> {
                 ],
               )),
         )
+      ],
+    );
+  }
+
+  Widget _buildMovieInformation() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Image.asset(
+          "assets/icons/ic_calendar_blank.png",
+          width: 16,
+          height: 16,
+          color: AppColor.gray696974,
+        ),
+        const SizedBox(width: Sizes.size4),
+        DefaultTextStyle(
+          style: TextStyle(fontSize: 12, color: AppColor.gray696974),
+          child: const Text("2021"),
+        ),
+        Container(
+          height: Sizes.size16,
+          margin: const EdgeInsets.symmetric(horizontal: Sizes.size12),
+          width: Sizes.size1,
+          color: AppColor.gray696974,
+        ),
+        Image.asset(
+          "assets/icons/ic_clock.png",
+          width: 16,
+          height: 16,
+          color: AppColor.gray696974,
+        ),
+        const SizedBox(width: Sizes.size4),
+        DefaultTextStyle(
+          style: TextStyle(fontSize: 12, color: AppColor.gray696974),
+          child: const Text("148 minutes"),
+        ),
+        Container(
+          height: Sizes.size16,
+          margin: const EdgeInsets.symmetric(horizontal: Sizes.size12),
+          width: Sizes.size1,
+          color: AppColor.gray696974,
+        ),
+        Image.asset(
+          "assets/icons/ic_ticket.png",
+          width: 16,
+          height: 16,
+          color: AppColor.gray696974,
+        ),
+        const SizedBox(width: Sizes.size4),
+        DefaultTextStyle(
+          style: TextStyle(fontSize: 12, color: AppColor.gray696974),
+          child: const Text("Action"),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTabs() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(left: Sizes.size32),
+      child: DefaultTabController(
+        length: _tabs.length,
+        // body: Text(_tabs[_selectedTabIndex]),
+        child: TabBar(
+          isScrollable: true,
+          indicatorColor: AppColor.gray3A3F47,
+          indicatorPadding: const EdgeInsets.only(
+              top: Sizes.size16, left: Sizes.size16, right: Sizes.size16),
+          tabs: _tabs.map((e) => Tab(text: e)).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAboutMovie() {
+    return DefaultTextStyle(
+      style: TextStyle(fontSize: 12, color: Colors.white),
+      child: Text(
+          "From DC Comics comes the Suicide Squad, an antihero team of incarcerated supervillains who act as deniable assets for the United States government, undertaking high-risk black ops missions in exchange for commuted prison sentences."),
+    );
+  }
+
+  Widget _buildReviews() {
+    return DefaultTextStyle(
+      style: TextStyle(fontSize: 12, color: Colors.white),
+      child: Text(
+          "From DC Comics comes the Suicide Squad, an antihero team of incarcerated supervillains who act as deniable assets for the United States government, undertaking high-risk black ops missions in exchange for commuted prison sentences."),
+    );
+  }
+
+  Widget _buildCasts() {
+    return GridView.count(
+      shrinkWrap: true,
+      primary: false,
+      padding: const EdgeInsets.all(8),
+      crossAxisCount: 3,
+      mainAxisSpacing: 18,
+      crossAxisSpacing: 14,
+      childAspectRatio: 100 / 145,
+      children: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((e) {
+        return _buildItemCast("Tom Holland",
+            "https://api.lorem.space/image/movie?w=150&h=${240 + e}");
+      }).toList(),
+    );
+  }
+
+  Widget _buildItemCast(String name, String avatar) {
+    return Column(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(50),
+          child: FadeInImage.assetNetwork(
+            placeholder: "assets/images/img_placeholder.png",
+            image: avatar,
+            width: 100,
+            height: 100,
+            fit: BoxFit.fill,
+          ),
+        ),
+        const SizedBox(height: Sizes.size8),
+        DefaultTextStyle(
+          style: const TextStyle(fontSize: 12, color: Colors.white),
+          child: Text(name),
+        ),
       ],
     );
   }
