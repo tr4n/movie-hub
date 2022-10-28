@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
               borderRadius: BorderRadius.circular(Sizes.size16),
               child: FadeInImage.assetNetwork(
                 placeholder:  "assets/images/img_placeholder.png",
-                image: "https://api.lorem.space/image/movie?w=150&h=220",
+                image: "https://api.lorem.space/image/movie?w=150&h=${240 + e}",
                 fit: BoxFit.cover,
               ),
             );

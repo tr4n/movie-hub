@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:moviehub/resources/colors.dart';
 
@@ -23,7 +25,7 @@ class Top5MovieWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(Sizes.size16),
               child: FadeInImage.assetNetwork(
                 placeholder:  "assets/images/img_placeholder.png",
-                image: "https://api.lorem.space/image/book?w=150&h=220",
+                image: "https://api.lorem.space/image/book?w=150&h=${250 + Random().nextInt(10)}",
                 width: 145,
                 height: 210,
                 fit: BoxFit.cover,

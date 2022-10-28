@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:moviehub/extension/context_ext.dart';
 
@@ -58,7 +60,7 @@ class _DetailPageState extends State<DetailPage> {
           ),
           child: FadeInImage.assetNetwork(
             placeholder: "assets/images/img_placeholder.png",
-            image: "https://api.lorem.space/image/movie?w=375&h=220",
+            image: "https://api.lorem.space/image/movie?w=375&h=${220 + Random().nextInt(5)}",
             width: context.getWidth(),
             height: 210,
             fit: BoxFit.fill,
@@ -75,7 +77,7 @@ class _DetailPageState extends State<DetailPage> {
                 borderRadius: BorderRadius.circular(Sizes.size16),
                 child: FadeInImage.assetNetwork(
                   placeholder: "assets/images/img_placeholder.png",
-                  image: "https://api.lorem.space/image/movie?w=95&h=120",
+                  image: "https://api.lorem.space/image/movie?w=95&h=${220 + Random().nextInt(5)}",
                   width: 95,
                   height: 120,
                   fit: BoxFit.fill,

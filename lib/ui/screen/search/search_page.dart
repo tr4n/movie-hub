@@ -95,7 +95,7 @@ class _SearchPageState extends State<SearchPage> {
                   type: "Action",
                   releaseDate: "2020",
                   duration: "129",
-                  imageUrl: "https://api.lorem.space/image/movie?w=150&h=220",
+                  imageUrl: "https://api.lorem.space/image/movie?w=150&h=${230 + index}",
                   onTap: () {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) => const DetailPage()));
