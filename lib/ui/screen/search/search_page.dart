@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:moviehub/ui/components/components.dart';
 import 'package:moviehub/ui/screen/detail/detail_page.dart';
 
+import '../../../data/model/movie.dart';
 import '../../../resources/resources.dart';
 
 class SearchPage extends StatefulWidget {
@@ -97,8 +98,11 @@ class _SearchPageState extends State<SearchPage> {
                   duration: "129",
                   imageUrl: "https://api.lorem.space/image/movie?w=150&h=${230 + index}",
                   onTap: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => const DetailPage()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => DetailPage(movie: Movie())),
+                    );
                   },
                 );
               },

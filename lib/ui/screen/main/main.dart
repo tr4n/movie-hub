@@ -3,12 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:moviehub/extension/context_ext.dart';
 import 'package:moviehub/ui/components/components.dart';
 
+import '../../../di/locator.dart';
 import '../../../resources/resources.dart';
 import '../home/home_page.dart';
 import '../search/search_page.dart';
 import '../watch_list/watch_list_page.dart';
 
 void main() {
+  setupLocator();
   runApp(const App());
 }
 

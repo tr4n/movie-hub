@@ -1,5 +1,5 @@
 class Urls {
-  static const apiKey = "d61ca0998c8a152c6556e310a4a8e4db";
+
   static const _baseUrl = 'https://api.themoviedb.org/3';
   static const movieUrl = '$_baseUrl/movie';
   static const searchMovieUrl = '$_baseUrl/search/movie';
@@ -19,6 +19,11 @@ class Urls {
 
   // trending movie of week
   static const moviesTrendingPath = '$_baseUrl/trending/movie/week';
+  static const moviesNowPlayingPath = '$_baseUrl/movie/now_playing';
+  static const moviesPopularPath = '$_baseUrl/movie/popular';
+  static const moviesTopRatedPath = '$_baseUrl/movie/top_rated';
+  static const moviesUpcomingPath = '$_baseUrl/movie/upcoming';
+  static const moviesLatestPath = '$_baseUrl/movie/latest';
 
   // cast detail
   static const castDetailPath = '$_baseUrl/person';

@@ -1,12 +1,14 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:moviehub/extension/context_ext.dart';
 
+import '../../../data/model/movie.dart';
+import '../../../data/platform/network/api/urls.dart';
 import '../../../resources/resources.dart';
 
 class DetailPage extends StatefulWidget {
-  const DetailPage({super.key});
+  final Movie movie;
+
+  const DetailPage({super.key, required this.movie});
 
   @override
   State<StatefulWidget> createState() => _DetailPageState();
@@ -20,10 +22,14 @@ class _DetailPageState extends State<DetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Padding(
+        leading: InkWell(
+          child: Padding(
             padding: const EdgeInsets.all(Sizes.size8),
             child: Image.asset("assets/icons/ic_left_arrow.png",
-                width: Sizes.size20, height: Sizes.size20)),
+                width: Sizes.size20, height: Sizes.size20),
+          ),
+          onTap: () => Navigator.pop(context),
+        ),
         centerTitle: true,
         actions: [
           Image.asset("assets/icons/ic_book_mark_filled.png",
@@ -36,7 +42,7 @@ class _DetailPageState extends State<DetailPage> {
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
-          child: Text("Detail"),
+          child: Text("Movie"),
         ),
         backgroundColor: AppColor.gray242A32,
         elevation: 0,
@@ -65,11 +71,12 @@ class _DetailPageState extends State<DetailPage> {
           ),
           child: FadeInImage.assetNetwork(
             placeholder: "assets/images/img_placeholder.png",
-            image:
-                "https://api.lorem.space/image/movie?w=375&h=${220 + Random().nextInt(5)}",
+            image: widget.movie.backdropPath != null
+                ? "${Urls.w500ImagePath}${widget.movie.backdropPath}"
+                : "https://api.lorem.space/image/movie?w=375&h=210",
             width: context.getWidth(),
             height: 210,
-            fit: BoxFit.fill,
+            fit: BoxFit.cover,
           ),
         ),
         Positioned(
@@ -81,21 +88,23 @@ class _DetailPageState extends State<DetailPage> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(Sizes.size16),
-                child: FadeInImage.assetNetwork(
-                  placeholder: "assets/images/img_placeholder.png",
-                  image:
-                      "https://api.lorem.space/image/movie?w=95&h=${220 + Random().nextInt(5)}",
+                child: Image.network(
+                  // placeholder: "assets/images/img_placeholder.png",
+                  widget.movie.posterPath != null
+                      ? "${Urls.w500ImagePath}${widget.movie.posterPath}"
+                      : "https://api.lorem.space/image/movie?w=95&h=120",
                   width: 95,
                   height: 120,
-                  fit: BoxFit.fill,
+                  fit: BoxFit.cover,
                 ),
               ),
               const SizedBox(width: Sizes.size12),
-              const Padding(
-                padding: EdgeInsets.only(bottom: Sizes.size8),
+              Padding(
+                padding: const EdgeInsets.only(bottom: Sizes.size8),
                 child: DefaultTextStyle(
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  child: Text("Spiderman No Way Home"),
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
+                  child: Text(widget.movie.originalTitle ?? ""),
                 ),
               ),
               const SizedBox(width: Sizes.size30),
@@ -128,7 +137,7 @@ class _DetailPageState extends State<DetailPage> {
                       color: AppColor.orangeFF8700,
                       fontWeight: FontWeight.bold,
                     ),
-                    child: const Text("9.5"),
+                    child: Text(widget.movie.voteAverage.toString()),
                   ),
                 ],
               )),
@@ -150,7 +159,7 @@ class _DetailPageState extends State<DetailPage> {
         const SizedBox(width: Sizes.size4),
         DefaultTextStyle(
           style: TextStyle(fontSize: 12, color: AppColor.gray696974),
-          child: const Text("2021"),
+          child: Text(widget.movie.releaseDate?.substring(0, 4) ?? ""),
         ),
         Container(
           height: Sizes.size16,
@@ -235,7 +244,7 @@ class _DetailPageState extends State<DetailPage> {
       childAspectRatio: 100 / 145,
       children: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((e) {
         return _buildItemCast("Tom Holland",
-            "https://api.lorem.space/image/movie?w=150&h=${240 + e}");
+            "https://api.lorem.space/image/face?w=150&h=${150 + e}");
       }).toList(),
     );
   }
