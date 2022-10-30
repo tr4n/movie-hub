@@ -4,7 +4,7 @@ import 'package:moviehub/resources/colors.dart';
 
 import '../../data/platform/network/api/urls.dart';
 import '../../resources/app_sizes.dart';
-import '../screen/detail/detail_page.dart';
+import '../screen/detail_page.dart';
 
 class TopTrendingMovieWidget extends StatelessWidget {
   final int top;

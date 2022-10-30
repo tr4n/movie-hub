@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moviehub/ui/components/components.dart';
-import 'package:moviehub/ui/screen/detail/detail_page.dart';
+import 'package:moviehub/ui/screen/detail_page.dart';
 
 import '../../../data/model/movie.dart';
 import '../../../resources/resources.dart';

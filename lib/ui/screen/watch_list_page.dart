@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:moviehub/extension/context_ext.dart';
 
 import '../../../resources/resources.dart';
-import '../../components/components.dart';
+import '../components/components.dart';
 
 class WatchListPage extends StatefulWidget {
   const WatchListPage({super.key});

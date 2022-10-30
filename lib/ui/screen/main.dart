@@ -3,11 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:moviehub/extension/context_ext.dart';
 import 'package:moviehub/ui/components/components.dart';
 
-import '../../../di/locator.dart';
-import '../../../resources/resources.dart';
-import '../home/home_page.dart';
-import '../search/search_page.dart';
-import '../watch_list/watch_list_page.dart';
+import '../../di/locator.dart';
+import '../../resources/resources.dart';
+import 'screens.dart';
 
 void main() {
   setupLocator();
@@ -61,7 +59,7 @@ class _MainPageState extends State<MainPage> {
   final _screens = [
     ScreenTab(
       index: 0,
-      page: HomePage(),
+      page: const HomePage(),
       name: "Home",
       title: "What do you want to watch?",
       icon: "assets/icons/ic_home.png",
@@ -69,14 +67,14 @@ class _MainPageState extends State<MainPage> {
     ScreenTab(
       index: 1,
       name: "Search",
-      page: SearchPage(),
+      page: const SearchPage(),
       title: "Search",
       icon: "assets/icons/ic_search.png",
     ),
     ScreenTab(
       index: 2,
       name: "Watch List",
-      page: WatchListPage(),
+      page: const WatchListPage(),
       title: 'Watch List',
       icon: "assets/icons/ic_book_mark.png",
     ),

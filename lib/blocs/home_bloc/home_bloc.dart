@@ -18,8 +18,6 @@ class HomeBloc extends BaseBloc<HomeEvent, HomeState> {
   }
 
   void _onLoadData(HomeGetDataEvent event, Emitter<HomeState> emit) async {
-    emit(HomeLoadingState());
-
     try {
       final List<Movie> trendingMovies =
           (await movieRepository.getTrending()).results;
@@ -32,6 +30,27 @@ class HomeBloc extends BaseBloc<HomeEvent, HomeState> {
                   : event.type == HomeTab.popular.id
                       ? (await movieRepository.getPopular()).results
                       : List.empty();
+
+      emit(HomeLoadSuccess(trendingMovies, tabMovies));
+    } catch (exception) {
+      final response = handelError(exception);
+      emit(HomeLoadFailure(response));
+    }
+  }
+
+  void _onLoadMore(HomeGetDataEvent event, Emitter<HomeState> emit) async {
+    try {
+      final List<Movie> trendingMovies =
+          (await movieRepository.getTrending()).results;
+      final List<Movie> tabMovies = event.type == HomeTab.nowPlaying.id
+          ? (await movieRepository.getNowPlaying()).results
+          : event.type == HomeTab.upcoming.id
+          ? (await movieRepository.getUpcoming()).results
+          : event.type == HomeTab.topRated.id
+          ? (await movieRepository.getTopRated()).results
+          : event.type == HomeTab.popular.id
+          ? (await movieRepository.getPopular()).results
+          : List.empty();
 
       emit(HomeLoadSuccess(trendingMovies, tabMovies));
     } catch (exception) {

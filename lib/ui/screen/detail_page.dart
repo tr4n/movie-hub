@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:moviehub/extension/context_ext.dart';
 
-import '../../../data/model/movie.dart';
-import '../../../data/platform/network/api/urls.dart';
-import '../../../resources/resources.dart';
+import '../../data/model/movie.dart';
+import '../../data/platform/network/api/urls.dart';
+import '../../resources/resources.dart';
 
 class DetailPage extends StatefulWidget {
   final Movie movie;

@@ -7,3 +7,4 @@ class HomeGetDataEvent extends HomeEvent {
 
   HomeGetDataEvent(this.type);
 }
+

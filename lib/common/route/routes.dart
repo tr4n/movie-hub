@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:moviehub/ui/screen/detail/detail_page.dart';
-import 'package:moviehub/ui/screen/home/home_page.dart';
-import 'package:moviehub/ui/screen/search/search_page.dart';
-import 'package:moviehub/ui/screen/watch_list/watch_list_page.dart';
+import 'package:moviehub/ui/screen/detail_page.dart';
+import 'package:moviehub/ui/screen/screens.dart';
 
 class Routes {
   Routes._();
