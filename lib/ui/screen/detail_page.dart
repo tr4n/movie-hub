@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moviehub/blocs/detail_bloc/detail_cubit.dart';
+import 'package:moviehub/blocs/detail_bloc/detail_state.dart';
 import 'package:moviehub/extension/context_ext.dart';
 
+import '../../common/common.dart';
 import '../../data/model/movie.dart';
 import '../../data/platform/network/api/urls.dart';
 import '../../resources/resources.dart';
@@ -17,50 +21,60 @@ class DetailPage extends StatefulWidget {
 class _DetailPageState extends State<DetailPage> {
   int _selectedTabIndex = 0;
   final _tabs = ["About Movie", "Reviews", "Cast"];
+  final cubit = DetailCubit();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: InkWell(
-          child: Padding(
-            padding: const EdgeInsets.all(Sizes.size8),
-            child: Image.asset("assets/icons/ic_left_arrow.png",
-                width: Sizes.size20, height: Sizes.size20),
-          ),
-          onTap: () => Navigator.pop(context),
-        ),
-        centerTitle: true,
-        actions: [
-          Image.asset("assets/icons/ic_book_mark_filled.png",
-              width: Sizes.size18, height: Sizes.size24),
-          const SizedBox(width: Sizes.size24),
-        ],
-        title: const DefaultTextStyle(
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-          child: Text("Movie"),
-        ),
-        backgroundColor: AppColor.gray242A32,
-        elevation: 0,
-      ),
-      body: Column(
-        children: [
-          _buildMovieBackdrop(),
-          const SizedBox(height: Sizes.size16),
-          _buildMovieInformation(),
-          const SizedBox(height: Sizes.size24),
-          _buildTabs(),
-          Expanded(child: _buildCasts()),
-        ],
-      ),
+    return BlocProvider<DetailCubit>(
+      create: (context) => cubit..loadDataFirstTime(widget.movie.id),
+      child: _detailBody(),
     );
   }
 
-  Widget _buildMovieBackdrop() {
+  Widget _detailBody() {
+    return BlocBuilder<DetailCubit, DetailState>(builder: (context, state) {
+      return Scaffold(
+        appBar: AppBar(
+          leading: InkWell(
+            child: Padding(
+              padding: const EdgeInsets.all(Sizes.size8),
+              child: Image.asset("assets/icons/ic_left_arrow.png",
+                  width: Sizes.size20, height: Sizes.size20),
+            ),
+            onTap: () => Navigator.pop(context),
+          ),
+          centerTitle: true,
+          actions: [
+            Image.asset("assets/icons/ic_book_mark_filled.png",
+                width: Sizes.size18, height: Sizes.size24),
+            const SizedBox(width: Sizes.size24),
+          ],
+          title: const DefaultTextStyle(
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+            child: Text("Movie"),
+          ),
+          backgroundColor: AppColor.gray242A32,
+          elevation: 0,
+        ),
+        body: Column(
+          children: [
+            _buildMovieBackdrop(state),
+            const SizedBox(height: Sizes.size16),
+            _buildMovieInformation(state),
+            const SizedBox(height: Sizes.size24),
+            _buildTabs(),
+            Expanded(child: _buildCasts()),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildMovieBackdrop(DetailState state) {
     return Stack(
       children: [
         SizedBox(width: context.getWidth(), height: 270),
@@ -146,7 +160,8 @@ class _DetailPageState extends State<DetailPage> {
     );
   }
 
-  Widget _buildMovieInformation() {
+  Widget _buildMovieInformation(DetailState state) {
+    final loadedState = cast<DetailLoadedState>(state);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -161,40 +176,54 @@ class _DetailPageState extends State<DetailPage> {
           style: TextStyle(fontSize: 12, color: AppColor.gray696974),
           child: Text(widget.movie.releaseDate?.substring(0, 4) ?? ""),
         ),
-        Container(
-          height: Sizes.size16,
-          margin: const EdgeInsets.symmetric(horizontal: Sizes.size12),
-          width: Sizes.size1,
-          color: AppColor.gray696974,
-        ),
-        Image.asset(
-          "assets/icons/ic_clock.png",
-          width: 16,
-          height: 16,
-          color: AppColor.gray696974,
-        ),
-        const SizedBox(width: Sizes.size4),
-        DefaultTextStyle(
-          style: TextStyle(fontSize: 12, color: AppColor.gray696974),
-          child: const Text("148 minutes"),
-        ),
-        Container(
-          height: Sizes.size16,
-          margin: const EdgeInsets.symmetric(horizontal: Sizes.size12),
-          width: Sizes.size1,
-          color: AppColor.gray696974,
-        ),
-        Image.asset(
-          "assets/icons/ic_ticket.png",
-          width: 16,
-          height: 16,
-          color: AppColor.gray696974,
-        ),
-        const SizedBox(width: Sizes.size4),
-        DefaultTextStyle(
-          style: TextStyle(fontSize: 12, color: AppColor.gray696974),
-          child: const Text("Action"),
-        ),
+        loadedState?.movie.runtime != null
+            ? Row(
+                children: [
+                  Container(
+                    height: Sizes.size16,
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: Sizes.size12),
+                    width: Sizes.size1,
+                    color: AppColor.gray696974,
+                  ),
+                  Image.asset(
+                    "assets/icons/ic_clock.png",
+                    width: 16,
+                    height: 16,
+                    color: AppColor.gray696974,
+                  ),
+                  const SizedBox(width: Sizes.size4),
+                  DefaultTextStyle(
+                    style: TextStyle(fontSize: 12, color: AppColor.gray696974),
+                    child: Text("${loadedState?.movie.runtime ?? 0} minutes"),
+                  )
+                ],
+              )
+            : const SizedBox(),
+        loadedState?.movie.genres?.isNotEmpty == true
+            ? Row(
+                children: [
+                  Container(
+                    height: Sizes.size16,
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: Sizes.size12),
+                    width: Sizes.size1,
+                    color: AppColor.gray696974,
+                  ),
+                  Image.asset(
+                    "assets/icons/ic_ticket.png",
+                    width: 16,
+                    height: 16,
+                    color: AppColor.gray696974,
+                  ),
+                  const SizedBox(width: Sizes.size4),
+                  DefaultTextStyle(
+                    style: TextStyle(fontSize: 12, color: AppColor.gray696974),
+                    child: Text(loadedState?.movie.listGenresString() ?? ""),
+                  )
+                ],
+              )
+            : const SizedBox()
       ],
     );
   }

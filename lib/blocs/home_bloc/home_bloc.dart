@@ -31,7 +31,7 @@ class HomeBloc extends BaseBloc<HomeEvent, HomeState> {
                       ? (await movieRepository.getPopular()).results
                       : List.empty();
 
-      emit(HomeLoadSuccess(trendingMovies, tabMovies));
+      emit(HomeLoadSuccess(trendingMovies, tabMovies, false));
     } catch (exception) {
       final response = handelError(exception);
       emit(HomeLoadFailure(response));
@@ -52,7 +52,7 @@ class HomeBloc extends BaseBloc<HomeEvent, HomeState> {
           ? (await movieRepository.getPopular()).results
           : List.empty();
 
-      emit(HomeLoadSuccess(trendingMovies, tabMovies));
+      emit(HomeLoadSuccess(trendingMovies, tabMovies, false));
     } catch (exception) {
       final response = handelError(exception);
       emit(HomeLoadFailure(response));

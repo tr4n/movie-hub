@@ -14,10 +14,10 @@ class HomeLoadSuccess extends HomeState {
 
   final List<Movie> tabMovies;
 
-  bool isLoadingMore = false;
+  final bool isLoadingMore;
 
   @override
-  List<Object?> get props => [trendingMovies, tabMovies];
+  List<Object?> get props => [trendingMovies, tabMovies, isLoadingMore];
 
   HomeLoadSuccess(this.trendingMovies, this.tabMovies, this.isLoadingMore);
 

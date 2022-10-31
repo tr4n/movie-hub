@@ -1,5 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import 'models.dart';
+
 part 'movie.g.dart';
 
 @JsonSerializable()
@@ -12,8 +14,6 @@ class Movie {
   String? overview;
   @JsonKey(name: "release_date")
   String? releaseDate;
-  @JsonKey(name: "genre_ids")
-  List<int>? genreIds;
   @JsonKey(name: "original_title")
   String? originalTitle;
   @JsonKey(name: "original_language")
@@ -28,8 +28,16 @@ class Movie {
   int voteCount = 0;
   @JsonKey(name: "vote_average")
   double voteAverage = 0.0;
+  @JsonKey(name: "runtime")
+  int? runtime = 0;
+  @JsonKey(name: "genres")
+  List<Genre>? genres = List.empty();
 
   Movie();
+
+  String getReleaseYear() => releaseDate?.substring(0, 4) ?? "";
+
+  String listGenresString() => genres?.map((e) => e.name ).join("\n") ?? "";
 
   factory Movie.fromJson(Map<String, dynamic> json) => _$MovieFromJson(json);
 }
