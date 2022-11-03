@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moviehub/blocs/detail_bloc/detail_cubit.dart';
 import 'package:moviehub/blocs/detail_bloc/detail_state.dart';
+import 'package:moviehub/common/type/detail_tab.dart';
 import 'package:moviehub/extension/context_ext.dart';
 
 import '../../common/common.dart';
-import '../../data/model/movie.dart';
+import '../../data/model/models.dart';
 import '../../data/platform/network/api/urls.dart';
 import '../../resources/resources.dart';
 
@@ -20,19 +21,44 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
   int _selectedTabIndex = 0;
+  static const double _endReachedThreshold = 200;
+  final ScrollController _controller = ScrollController();
   final _tabs = ["About Movie", "Reviews", "Cast"];
-  final cubit = DetailCubit();
+  final _cubit = DetailCubit();
+
+  @override
+  void initState() {
+    _controller.addListener(_onScroll);
+    super.initState();
+  }
+
+  void _onScroll() {
+    final isLoading =
+        cast<DetailLoadedState>(_cubit.state)?.isLoadingMore == true;
+    if (!_controller.hasClients || isLoading) return;
+
+    final thresholdReached =
+        _controller.position.extentAfter < _endReachedThreshold;
+
+    if (thresholdReached) {
+      _cubit.loadReviewData(widget.movie.id);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<DetailCubit>(
-      create: (context) => cubit..loadDataFirstTime(widget.movie.id),
+      create: (context) => _cubit..loadDataFirstTime(widget.movie.id),
       child: _detailBody(),
     );
   }
 
   Widget _detailBody() {
     return BlocBuilder<DetailCubit, DetailState>(builder: (context, state) {
+      final loadedState = cast<DetailLoadedState>(state);
+      if (loadedState != null) {
+        _selectedTabIndex = loadedState.tabId;
+      }
       return Scaffold(
         appBar: AppBar(
           leading: InkWell(
@@ -65,9 +91,14 @@ class _DetailPageState extends State<DetailPage> {
             _buildMovieBackdrop(state),
             const SizedBox(height: Sizes.size16),
             _buildMovieInformation(state),
-            const SizedBox(height: Sizes.size24),
-            _buildTabs(),
-            Expanded(child: _buildCasts()),
+            const SizedBox(height: Sizes.size16),
+            _buildTabs(state),
+            Expanded(
+                child: _selectedTabIndex == DetailTab.aboutMovie.id
+                    ? _buildAboutMovie(state)
+                    : _selectedTabIndex == DetailTab.reviews.id
+                        ? _buildReviews(state)
+                        : _buildCasts(state)),
           ],
         ),
       );
@@ -162,30 +193,29 @@ class _DetailPageState extends State<DetailPage> {
 
   Widget _buildMovieInformation(DetailState state) {
     final loadedState = cast<DetailLoadedState>(state);
-    return Row(
+    return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Image.asset(
-          "assets/icons/ic_calendar_blank.png",
-          width: 16,
-          height: 16,
-          color: AppColor.gray696974,
-        ),
-        const SizedBox(width: Sizes.size4),
-        DefaultTextStyle(
-          style: TextStyle(fontSize: 12, color: AppColor.gray696974),
-          child: Text(widget.movie.releaseDate?.substring(0, 4) ?? ""),
+        Row(
+          children: [
+            const SizedBox(width: 30),
+            Image.asset(
+              "assets/icons/ic_calendar_blank.png",
+              width: 16,
+              height: 16,
+              color: AppColor.gray696974,
+            ),
+            const SizedBox(width: Sizes.size4),
+            DefaultTextStyle(
+              style: TextStyle(fontSize: 12, color: AppColor.gray696974),
+              child: Text(widget.movie.releaseDate?.substring(0, 4) ?? ""),
+            ),
+          ],
         ),
         loadedState?.movie.runtime != null
             ? Row(
                 children: [
-                  Container(
-                    height: Sizes.size16,
-                    margin:
-                        const EdgeInsets.symmetric(horizontal: Sizes.size12),
-                    width: Sizes.size1,
-                    color: AppColor.gray696974,
-                  ),
+                  const SizedBox(width: 30),
                   Image.asset(
                     "assets/icons/ic_clock.png",
                     width: 16,
@@ -203,13 +233,7 @@ class _DetailPageState extends State<DetailPage> {
         loadedState?.movie.genres?.isNotEmpty == true
             ? Row(
                 children: [
-                  Container(
-                    height: Sizes.size16,
-                    margin:
-                        const EdgeInsets.symmetric(horizontal: Sizes.size12),
-                    width: Sizes.size1,
-                    color: AppColor.gray696974,
-                  ),
+                  const SizedBox(width: 30),
                   Image.asset(
                     "assets/icons/ic_ticket.png",
                     width: 16,
@@ -218,9 +242,11 @@ class _DetailPageState extends State<DetailPage> {
                   ),
                   const SizedBox(width: Sizes.size4),
                   DefaultTextStyle(
-                    style: TextStyle(fontSize: 12, color: AppColor.gray696974),
-                    child: Text(loadedState?.movie.listGenresString() ?? ""),
-                  )
+                      overflow: TextOverflow.ellipsis,
+                      style:
+                          TextStyle(fontSize: 12, color: AppColor.gray696974),
+                      softWrap: true,
+                      child: Text(loadedState?.movie.listGenresString() ?? "")),
                 ],
               )
             : const SizedBox()
@@ -228,7 +254,7 @@ class _DetailPageState extends State<DetailPage> {
     );
   }
 
-  Widget _buildTabs() {
+  Widget _buildTabs(DetailState state) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(left: Sizes.size32),
@@ -241,28 +267,48 @@ class _DetailPageState extends State<DetailPage> {
           indicatorPadding: const EdgeInsets.only(
               top: Sizes.size16, left: Sizes.size16, right: Sizes.size16),
           tabs: _tabs.map((e) => Tab(text: e)).toList(),
+          onTap: (index) {
+            _cubit.changeTab(widget.movie.id, index);
+          },
         ),
       ),
     );
   }
 
-  Widget _buildAboutMovie() {
-    return DefaultTextStyle(
-      style: TextStyle(fontSize: 12, color: Colors.white),
-      child: Text(
-          "From DC Comics comes the Suicide Squad, an antihero team of incarcerated supervillains who act as deniable assets for the United States government, undertaking high-risk black ops missions in exchange for commuted prison sentences."),
+  Widget _buildAboutMovie(DetailState state) {
+    final loadedState = cast<DetailLoadedState>(state);
+
+    return Container(
+      margin: const EdgeInsets.all(Sizes.size24),
+      child: DefaultTextStyle(
+        style: const TextStyle(fontSize: 12, color: Colors.white, height: 1.5),
+        child: Text(loadedState?.movie.overview ?? ""),
+      ),
     );
   }
 
-  Widget _buildReviews() {
-    return DefaultTextStyle(
-      style: TextStyle(fontSize: 12, color: Colors.white),
-      child: Text(
-          "From DC Comics comes the Suicide Squad, an antihero team of incarcerated supervillains who act as deniable assets for the United States government, undertaking high-risk black ops missions in exchange for commuted prison sentences."),
+  Widget _buildReviews(DetailState state) {
+    final loadedState = cast<DetailLoadedState>(state);
+    final reviews = loadedState?.reviews ?? List.empty();
+    return Container(
+      margin: const EdgeInsets.only(
+          top: Sizes.size24, left: Sizes.size24, right: Sizes.size24),
+      child: ListView.builder(
+        scrollDirection: Axis.vertical,
+        controller: _controller,
+        itemCount: reviews.length,
+        itemBuilder: (context, index) {
+          return _itemReview(reviews[index]);
+        },
+      ),
     );
   }
 
-  Widget _buildCasts() {
+  Widget _buildCasts(DetailState state) {
+    final loadedState = cast<DetailLoadedState>(state);
+    if (loadedState == null) {
+      return const SizedBox();
+    }
     return GridView.count(
       shrinkWrap: true,
       primary: false,
@@ -271,32 +317,91 @@ class _DetailPageState extends State<DetailPage> {
       mainAxisSpacing: 18,
       crossAxisSpacing: 14,
       childAspectRatio: 100 / 145,
-      children: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((e) {
-        return _buildItemCast("Tom Holland",
-            "https://api.lorem.space/image/face?w=150&h=${150 + e}");
-      }).toList(),
+      children: loadedState.casts.map(_buildItemCast).toList(),
     );
   }
 
-  Widget _buildItemCast(String name, String avatar) {
+  Widget _buildItemCast(Cast cast) {
+    final profileImage = cast.profilePath != null
+        ? "${Urls.w342ImagePath}${cast.profilePath}"
+        : "https://api.lorem.space/image/face?w=100&h=${(cast.id ?? 0) % 10 + 100}";
     return Column(
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(50),
-          child: FadeInImage.assetNetwork(
-            placeholder: "assets/images/img_placeholder.png",
-            image: avatar,
+          child: Image.network(
+            profileImage,
             width: 100,
             height: 100,
-            fit: BoxFit.fill,
+            fit: BoxFit.cover,
           ),
         ),
         const SizedBox(height: Sizes.size8),
         DefaultTextStyle(
           style: const TextStyle(fontSize: 12, color: Colors.white),
-          child: Text(name),
+          child: Text(cast.name ?? ""),
         ),
       ],
+    );
+  }
+
+  Widget _itemReview(Review review) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: Sizes.size16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: Sizes.size8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(50),
+                child: Image.network(
+                  review.getAvatarAuthorUrl(),
+                  width: 44,
+                  height: 44,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(height: Sizes.size8),
+              DefaultTextStyle(
+                style: TextStyle(fontSize: 12, color: AppColor.blue0296E5),
+                child: Text(review.authorDetails?.rating?.toString() ?? ""),
+              ),
+            ],
+          ),
+          const SizedBox(width: Sizes.size12),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DefaultTextStyle(
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                  ),
+                  child: Text(review.getAuthorName()),
+                ),
+                const SizedBox(height: Sizes.size8),
+                DefaultTextStyle(
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  child: Text(review.content ?? "", maxLines: 5),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

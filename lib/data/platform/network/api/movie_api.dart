@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:moviehub/data/model/movie.dart';
 import 'package:moviehub/data/platform/network/api/urls.dart';
+import 'package:moviehub/data/platform/network/response/credits_response.dart';
 import 'package:moviehub/data/platform/network/response/movies_response.dart';
+import 'package:moviehub/data/platform/network/response/reviews_response.dart';
 
 import '../response/error_response.dart';
 
@@ -61,8 +63,25 @@ class MovieApi {
     return Movie.fromJson(response.data);
   }
 
+  Future<ReviewsResponse> getMovieReviews(int id, int page) async {
+    final response = await _dio
+        .get("${Urls.movieUrl}/$id/reviews", queryParameters: {"page": page});
+    return ReviewsResponse.fromJson(response.data);
+  }
+
+  Future<CreditsResponse> getMovieCredits(int id) async {
+    final response = await _dio.get("${Urls.movieUrl}/$id/credits");
+    return CreditsResponse.fromJson(response.data);
+  }
+
   Future<MoviesResponse> getTrendingMovies() async {
     final response = await _dio.get(Urls.moviesTrendingPath);
+    return MoviesResponse.fromJson(response.data);
+  }
+
+  Future<MoviesResponse> searchMovies(String query, int page) async {
+    final response = await _dio.get(Urls.searchMovieUrl,
+        queryParameters: {"query": query, "page": page});
     return MoviesResponse.fromJson(response.data);
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:moviehub/extension/context_ext.dart';
 
 import '../../../resources/resources.dart';
+import '../../data/model/models.dart';
 import '../components/components.dart';
 
 class WatchListPage extends StatefulWidget {
@@ -56,14 +57,7 @@ class _WatchListPageState extends State<WatchListPage> {
           left: Sizes.size22, right: Sizes.size20, top: Sizes.size22),
       itemCount: movies.length,
       itemBuilder: (BuildContext context, int index) {
-        return ItemMovieInformation(
-            title: movies[index],
-            rate: "9.5",
-            type: "Action",
-            releaseDate: "2020",
-            duration: "129",
-            imageUrl:
-                "https://api.lorem.space/image/movie?w=150&h=${215 + index}");
+        return ItemMovieInformation(movie: Movie());
       },
       separatorBuilder: (BuildContext context, int index) {
         return const SizedBox(height: Sizes.size24);
