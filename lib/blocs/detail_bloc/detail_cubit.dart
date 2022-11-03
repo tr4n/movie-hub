@@ -4,12 +4,12 @@ import 'package:moviehub/common/common.dart';
 
 import '../../common/error_handler.dart';
 import '../../common/type/detail_tab.dart';
-import '../../data/model/movie.dart';
 import '../../data/repository/repositories.dart';
 import '../../di/locator.dart';
 
 class DetailCubit extends Cubit<DetailState> {
-  int currentPage = 0;
+  int _currentPage = 0;
+  int _totalPage = 0;
   final MovieRepository _movieRepository = locator<MovieRepository>();
 
   DetailCubit() : super(DetailInitializedState());
@@ -19,7 +19,7 @@ class DetailCubit extends Cubit<DetailState> {
 
     try {
       final movie = await _movieRepository.getDetailMovie(id);
-      emit(DetailLoadedState(movie, List.empty(), false));
+      emit(DetailLoadedState(movie: movie));
     } catch (exception) {
       final response = handelError(exception);
       emit(DetailLoadFailure(response));
@@ -28,14 +28,20 @@ class DetailCubit extends Cubit<DetailState> {
 
   Future<void> loadReviewData(int id) async {
     final loadedState = cast<DetailLoadedState>(state);
+    if (loadedState == null || _currentPage >= _totalPage) {
+      return;
+    }
+    emit(loadedState.copyWith(loading: true));
     try {
-      final reviews =
-          (await _movieRepository.getMovieReviews(id, currentPage + 1))
-                  .results ??
-              List.empty();
-      currentPage = currentPage + 1;
-      emit(loadedState?.copyWith(reviews: reviews) ??
-          DetailLoadedState(Movie(), reviews, false));
+      final response =
+          await _movieRepository.getMovieReviews(id, _currentPage + 1);
+      final reviews = response.results ?? List.empty();
+      if (reviews.isNotEmpty) {
+        _currentPage = _currentPage + 1;
+      }
+
+      emit(loadedState.copyWith(
+          reviews: loadedState.reviews + reviews, loading: false));
     } catch (exception) {
       final response = handelError(exception);
       emit(DetailLoadFailure(response));
@@ -44,24 +50,26 @@ class DetailCubit extends Cubit<DetailState> {
 
   Future<void> changeTab(int id, int type) async {
     final loadedState = cast<DetailLoadedState>(state);
+    if (loadedState == null) return;
     try {
-      if(type == DetailTab.reviews.id ) {
-        final reviews = (await _movieRepository.getMovieReviews(id, 1)).results ?? List.empty();
+      if (type == DetailTab.reviews.id) {
+        final response = await _movieRepository.getMovieReviews(id, 1);
+        final reviews = response.results ?? List.empty();
+        _currentPage = response.page ?? 1;
+        _totalPage = response.totalPages ?? 0;
+        emit(loadedState.copyWith(reviews: reviews, tabId: type));
+        return;
       }
-      final MoviesResponse response = type == DetailTab.reviews.id
-          ? (await _movieRepository.getMovieReviews(id, 1))
-          : type == DetailTab.cast.id
-          ? (await _movieRepository.getMovieCredits(id))
-          : MoviesResponse();
-
-      final newState = state;
-      currentPage = response.page;
-      if (newState is HomeLoadSuccess) {
-        emit(newState.copyWith(tabMovies: response.results));
+      if (type == DetailTab.cast.id) {
+        final response = await _movieRepository.getMovieCredits(id);
+        final casts = response.casts ?? List.empty();
+        emit(loadedState.copyWith(casts: casts, tabId: type));
+        return;
       }
+      emit(loadedState.copyWith(tabId: type));
     } catch (exception) {
       final response = handelError(exception);
-      emit(HomeLoadFailure(response));
+      emit(DetailLoadFailure(response));
     }
   }
 }

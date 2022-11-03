@@ -1,26 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../../data/model/models.dart';
+import '../../data/platform/network/api/urls.dart';
 import '../../resources/resources.dart';
 
 class ItemMovieInformation extends StatelessWidget {
-  final String title;
-  final String rate;
-  final String type;
-  final String releaseDate;
-  final String duration;
-  final String imageUrl;
-
+  final Movie movie;
   final Function()? onTap;
 
-  const ItemMovieInformation(
-      {required this.title,
-      required this.rate,
-      required this.type,
-      required this.releaseDate,
-      required this.duration,
-      required this.imageUrl,
-      this.onTap,
-      super.key});
+  const ItemMovieInformation({required this.movie, this.onTap, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -32,12 +20,13 @@ class ItemMovieInformation extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(Sizes.size16),
-              child: FadeInImage.assetNetwork(
-                placeholder: "assets/images/img_placeholder.png",
-                image: imageUrl,
+              child: Image.network(
+                movie.posterPath != null
+                    ? "${Urls.w342ImagePath}${movie.posterPath}"
+                    : "https://api.lorem.space/image/movie?w=95&h=120",
                 width: 95,
                 height: 120,
-                fit: BoxFit.fill,
+                fit: BoxFit.cover,
               ),
             ),
             const SizedBox(width: Sizes.size12),
@@ -48,7 +37,7 @@ class ItemMovieInformation extends StatelessWidget {
                 children: [
                   DefaultTextStyle(
                     style: const TextStyle(fontSize: 16),
-                    child: Text(title),
+                    child: Text(movie.title ?? ""),
                   ),
                   Column(
                     children: [
@@ -66,7 +55,7 @@ class ItemMovieInformation extends StatelessWidget {
                               color: AppColor.orangeFF8700,
                               fontWeight: FontWeight.bold,
                             ),
-                            child: Text(rate),
+                            child: Text(movie.voteAverage.toString()),
                           ),
                         ],
                       ),
@@ -82,7 +71,7 @@ class ItemMovieInformation extends StatelessWidget {
                           DefaultTextStyle(
                             style: const TextStyle(
                                 fontSize: 12, color: Colors.white),
-                            child: Text(type),
+                            child: Text(movie.listGenresString()),
                           ),
                         ],
                       ),
@@ -98,7 +87,7 @@ class ItemMovieInformation extends StatelessWidget {
                           DefaultTextStyle(
                             style: const TextStyle(
                                 fontSize: 12, color: Colors.white),
-                            child: Text(releaseDate),
+                            child: Text(movie.releaseDate ?? ""),
                           ),
                         ],
                       ),
@@ -114,7 +103,7 @@ class ItemMovieInformation extends StatelessWidget {
                           DefaultTextStyle(
                             style: const TextStyle(
                                 fontSize: 12, color: Colors.white),
-                            child: Text("$duration minutes"),
+                            child: Text("${movie.runtime ?? 0} minutes"),
                           ),
                         ],
                       ),

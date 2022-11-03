@@ -1,5 +1,7 @@
 import 'package:moviehub/data/model/author.dart';
 
+import '../platform/network/api/urls.dart';
+
 class Review {
   String? author;
   Author? authorDetails;
@@ -42,5 +44,21 @@ class Review {
     data['updated_at'] = updatedAt;
     data['url'] = url;
     return data;
+  }
+
+  String getAvatarAuthorUrl() {
+    final path = authorDetails?.avatarPath;
+    if (path == null) {
+      return "https://api.lorem.space/image/face?w=44&h=44";
+    }
+    if (path.contains("https")) {
+      return path.substring(1);
+    }
+    return "${Urls.w342ImagePath}$path";
+  }
+
+  String getAuthorName() {
+    final name = authorDetails?.name ?? "";
+    return name.isNotEmpty ? name : "Anonymous";
   }
 }

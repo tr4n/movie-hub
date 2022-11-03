@@ -1,6 +1,5 @@
 import 'package:moviehub/blocs/base/base.dart';
 import 'package:moviehub/data/model/models.dart';
-import 'package:moviehub/data/model/movie.dart';
 
 class DetailState extends BaseState {}
 
@@ -10,23 +9,38 @@ class DetailLoadingState extends DetailState {}
 
 class DetailLoadingMoreState extends DetailState {}
 
+class DetailTabLoadingState extends DetailState {}
+
 class DetailLoadedState extends DetailState {
+  final int tabId;
   final Movie movie;
   final List<Review> reviews;
+  final List<Cast> casts;
 
   final bool isLoadingMore;
 
   @override
-  List<Object?> get props => [movie, isLoadingMore];
+  List<Object?> get props => [tabId, movie, reviews, casts, isLoadingMore];
 
-  DetailLoadedState(this.movie, this.reviews, this.isLoadingMore);
+  DetailLoadedState(
+      {required this.movie,
+      this.tabId = 0,
+      this.reviews = const [],
+      this.casts = const [],
+      this.isLoadingMore = false});
 
   DetailLoadedState copyWith(
-      {Movie? movie, List<Review>? reviews, bool? loading}) {
+      {Movie? movie,
+      int? tabId,
+      List<Review>? reviews,
+      List<Cast>? casts,
+      bool? loading}) {
     return DetailLoadedState(
-      movie ?? this.movie,
-      reviews ?? this.reviews,
-      loading ?? isLoadingMore,
+      movie: movie ?? this.movie,
+      tabId: tabId ?? this.tabId,
+      reviews: reviews ?? this.reviews,
+      casts: casts ?? this.casts,
+      isLoadingMore: loading ?? isLoadingMore,
     );
   }
 }

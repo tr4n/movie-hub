@@ -9,17 +9,17 @@ class Movie {
   @JsonKey(name: "id")
   int id = 0;
   @JsonKey(name: "poster_path")
-  String? posterPath;
+  String? posterPath = "";
   @JsonKey(name: "overview")
   String? overview = "";
   @JsonKey(name: "release_date")
-  String? releaseDate;
+  String? releaseDate = "";
   @JsonKey(name: "original_title")
-  String? originalTitle;
+  String? originalTitle = "";
   @JsonKey(name: "original_language")
   String? originalLanguage;
   @JsonKey(name: "title")
-  String? title;
+  String? title = "";
   @JsonKey(name: "backdrop_path")
   String? backdropPath;
   @JsonKey(name: "popularity")

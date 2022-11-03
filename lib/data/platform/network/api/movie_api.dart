@@ -79,6 +79,12 @@ class MovieApi {
     return MoviesResponse.fromJson(response.data);
   }
 
+  Future<MoviesResponse> searchMovies(String query, int page) async {
+    final response = await _dio.get(Urls.searchMovieUrl,
+        queryParameters: {"query": query, "page": page});
+    return MoviesResponse.fromJson(response.data);
+  }
+
   Future<Response?> get(
       {required String url, Map<String, dynamic> params = const {}}) async {
     try {

@@ -44,4 +44,8 @@ class MovieRepository {
   Future<CreditsResponse> getMovieCredits(int id) async {
     return api.getMovieCredits(id);
   }
+
+  Future<MoviesResponse> searchMovies(String query, int page) async {
+    return api.searchMovies(query, page);
+  }
 }

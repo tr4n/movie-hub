@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moviehub/blocs/search_bloc/search_cubit.dart';
+import 'package:moviehub/blocs/search_bloc/search_state.dart';
 import 'package:moviehub/ui/components/components.dart';
 import 'package:moviehub/ui/screen/detail_page.dart';
 
-import '../../../data/model/movie.dart';
 import '../../../resources/resources.dart';
+import '../../common/extension/collection_ext.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -13,15 +16,27 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  final _cubit = SearchCubit();
+  final _textController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _buildSearchBar(),
-        _buildSearchResult(["Spiderman", "Helloworld", "AB C", "123", "34234"]),
-        const SizedBox(height: Sizes.size16),
-      ],
+    return BlocProvider<SearchCubit>(
+      create: (context) => _cubit,
+      child: _searchBody(),
     );
+  }
+
+  Widget _searchBody() {
+    return BlocBuilder<SearchCubit, SearchState>(builder: (context, state) {
+      return Column(
+        children: [
+          _buildSearchBar(),
+          _buildSearchContent(state),
+          const SizedBox(height: Sizes.size16),
+        ],
+      );
+    });
   }
 
   Widget _buildSearchBar() {
@@ -30,86 +45,92 @@ class _SearchPageState extends State<SearchPage> {
       decoration: BoxDecoration(
           color: AppColor.gray3A3F47,
           borderRadius: const BorderRadius.all(Radius.circular(Sizes.size16))),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const SizedBox(width: 16),
-          const Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: "Search film\'s name",
-                contentPadding: EdgeInsets.symmetric(vertical: Sizes.size10),
-                isDense: true,
-              ),
-              style: TextStyle(
-                fontSize: 14,
-              ),
-            ),
-          ),
-          Image.asset("assets/icons/ic_search_left.png",
-              width: 16, fit: BoxFit.fitWidth),
-          const SizedBox(width: 16)
-        ],
+      child: TextField(
+        controller: _textController,
+        decoration: const InputDecoration(
+          border: InputBorder.none,
+          hintText: "Search film's name",
+          prefixIcon:
+              Icon(Icons.search, color: Colors.white54, size: Sizes.size16),
+        ),
+        style: const TextStyle(fontSize: 14, color: Colors.white),
+        onChanged: (text) {
+          _cubit.search(_textController.text);
+        },
       ),
     );
   }
 
-  Widget _buildSearchResult(List<String> names) {
-    return names.isEmpty
-        ? Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  "assets/images/img_no_result.png",
-                  width: 76,
-                  height: 76,
-                  fit: BoxFit.fitWidth,
-                ),
-                const SizedBox(height: Sizes.size16),
-                DefaultTextStyle(
-                  style: TextStyle(fontSize: 16, color: AppColor.grayEBEBEF),
-                  child:
-                      const Text("We are sorry, we can not find the movie :("),
-                ),
-                const SizedBox(height: Sizes.size8),
-                DefaultTextStyle(
-                  style: TextStyle(fontSize: 12, color: AppColor.gray92929D),
-                  child: const Text(
-                      "Find your movie by Type title, categories, years, etc "),
-                ),
-              ],
-            ),
-          )
-        : Expanded(
-            child: ListView.separated(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              padding: const EdgeInsets.only(
-                  left: Sizes.size22, right: Sizes.size20, top: Sizes.size22),
-              itemCount: names.length,
-              itemBuilder: (BuildContext context, int index) {
-                return ItemMovieInformation(
-                  title: names[index],
-                  rate: "9.5",
-                  type: "Action",
-                  releaseDate: "2020",
-                  duration: "129",
-                  imageUrl: "https://api.lorem.space/image/movie?w=150&h=${230 + index}",
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => DetailPage(movie: Movie())),
-                    );
-                  },
-                );
-              },
-              separatorBuilder: (BuildContext context, int index) {
-                return const SizedBox(height: Sizes.size24);
-              },
-            ),
+  Widget _buildSearchContent(SearchState state) {
+    final loadedState = cast<SearchLoadedState>(state);
+    if (state is SearchLoadFailure || loadedState?.movies.isNotEmpty != true) {
+      return _searchEmpty();
+    }
+    if (loadedState != null) {
+      return _searchResult(loadedState);
+    }
+    return _searchLoading();
+  }
+
+  Widget _searchResult(SearchLoadedState state) {
+    return Expanded(
+      child: ListView.separated(
+        scrollDirection: Axis.vertical,
+        shrinkWrap: true,
+        padding: const EdgeInsets.only(
+            left: Sizes.size22, right: Sizes.size20, top: Sizes.size22),
+        itemCount: state.movies.length,
+        itemBuilder: (BuildContext context, int index) {
+          return ItemMovieInformation(
+            movie: state.movies[index],
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        DetailPage(movie: state.movies[index])),
+              );
+            },
           );
+        },
+        separatorBuilder: (BuildContext context, int index) {
+          return const SizedBox(height: Sizes.size24);
+        },
+      ),
+    );
+  }
+
+  Widget _searchLoading() {
+    return Container(
+      alignment: Alignment.center,
+      child: const CircularProgressIndicator(),
+    );
+  }
+
+  Widget _searchEmpty() {
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            "assets/images/img_no_result.png",
+            width: 76,
+            height: 76,
+            fit: BoxFit.fitWidth,
+          ),
+          const SizedBox(height: Sizes.size16),
+          DefaultTextStyle(
+            style: TextStyle(fontSize: 16, color: AppColor.grayEBEBEF),
+            child: const Text("We are sorry, we can not find the movie :("),
+          ),
+          const SizedBox(height: Sizes.size8),
+          DefaultTextStyle(
+            style: TextStyle(fontSize: 12, color: AppColor.gray92929D),
+            child: const Text(
+                "Find your movie by Type title, categories, years, etc "),
+          ),
+        ],
+      ),
+    );
   }
 }
