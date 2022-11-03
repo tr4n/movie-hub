@@ -218,6 +218,7 @@ class _DetailPageState extends State<DetailPage> {
                   ),
                   const SizedBox(width: Sizes.size4),
                   DefaultTextStyle(
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 12, color: AppColor.gray696974),
                     child: Text(loadedState?.movie.listGenresString() ?? ""),
                   )
@@ -246,12 +247,12 @@ class _DetailPageState extends State<DetailPage> {
     );
   }
 
-  Widget _buildAboutMovie() {
+  Widget _buildAboutMovie(DetailState state) {
+    final loadedState = cast<DetailLoadedState>(state);
+
     return DefaultTextStyle(
-      style: TextStyle(fontSize: 12, color: Colors.white),
-      child: Text(
-          "From DC Comics comes the Suicide Squad, an antihero team of incarcerated supervillains who act as deniable assets for the United States government, undertaking high-risk black ops missions in exchange for commuted prison sentences."),
-    );
+      style: const TextStyle(fontSize: 12, color: Colors.white),
+      child: Text(loadedState?.movie.overview ?? "");
   }
 
   Widget _buildReviews() {

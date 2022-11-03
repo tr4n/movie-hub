@@ -11,7 +11,7 @@ class Movie {
   @JsonKey(name: "poster_path")
   String? posterPath;
   @JsonKey(name: "overview")
-  String? overview;
+  String? overview = "";
   @JsonKey(name: "release_date")
   String? releaseDate;
   @JsonKey(name: "original_title")
@@ -37,7 +37,7 @@ class Movie {
 
   String getReleaseYear() => releaseDate?.substring(0, 4) ?? "";
 
-  String listGenresString() => genres?.map((e) => e.name ).join("\n") ?? "";
+  String listGenresString() => genres?.map((e) => e.name ).join(", ") ?? "";
 
   factory Movie.fromJson(Map<String, dynamic> json) => _$MovieFromJson(json);
 }

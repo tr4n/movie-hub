@@ -2,6 +2,7 @@ import 'package:moviehub/data/model/movie.dart';
 
 import '../platform/network/api/api.dart';
 import '../platform/network/response/responses.dart';
+import '../platform/network/response/reviews_response.dart';
 
 class MovieRepository {
   final MovieApi api;
@@ -34,5 +35,13 @@ class MovieRepository {
 
   Future<MoviesResponse> getTrending() async {
     return api.getTrendingMovies();
+  }
+
+  Future<ReviewsResponse> getMovieReviews(int id, int page) async {
+    return api.getMovieReviews(id, page);
+  }
+
+  Future<CreditsResponse> getMovieCredits(int id) async {
+    return api.getMovieCredits(id);
   }
 }
