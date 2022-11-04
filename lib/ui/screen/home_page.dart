@@ -130,7 +130,6 @@ class _HomePageState extends State<HomePage> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(Sizes.size16),
                   child: Image.network(
-                    // placeholder: "assets/images/img_placeholder.png",
                     movie.posterPath != null
                         ? "${Urls.w342ImagePath}${movie.posterPath}"
                         : "https://api.lorem.space/image/movie?w=100&h=145",

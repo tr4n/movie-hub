@@ -8,9 +8,10 @@ import '../data/repository/repositories.dart';
 final GetIt locator = GetIt.instance;
 
 setupLocator() async {
+  final appDatabase = await AppDatabase.getInstance();
+
   locator.registerLazySingleton(() => MovieApi());
-  locator.registerLazySingletonAsync<AppDatabase>(
-      () async => await AppDatabase.getInstance());
+  locator.registerLazySingleton<AppDatabase>(() => appDatabase);
   locator.registerLazySingleton(() => MovieRepository(locator<MovieApi>()));
   locator.registerLazySingleton(() {
     return FavoriteRepository(locator<AppDatabase>());

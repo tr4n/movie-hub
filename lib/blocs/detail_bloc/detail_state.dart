@@ -14,6 +14,7 @@ class DetailTabLoadingState extends DetailState {}
 class DetailLoadedState extends DetailState {
   final int tabId;
   final Movie movie;
+  final List<Movie> similars;
   final List<Review> reviews;
   final List<Cast> casts;
 
@@ -22,13 +23,14 @@ class DetailLoadedState extends DetailState {
 
   @override
   List<Object?> get props =>
-      [tabId, movie, reviews, casts, isLoadingMore, isFavorite];
+      [tabId, movie, reviews, casts, similars, isLoadingMore, isFavorite];
 
   DetailLoadedState(
       {required this.movie,
       this.tabId = 0,
       this.reviews = const [],
       this.casts = const [],
+      this.similars = const [],
       this.isLoadingMore = false,
       this.isFavorite = false});
 
@@ -37,6 +39,7 @@ class DetailLoadedState extends DetailState {
       int? tabId,
       List<Review>? reviews,
       List<Cast>? casts,
+      List<Movie>? similars,
       bool? loading,
       bool? favorite}) {
     return DetailLoadedState(
@@ -44,6 +47,7 @@ class DetailLoadedState extends DetailState {
         tabId: tabId ?? this.tabId,
         reviews: reviews ?? this.reviews,
         casts: casts ?? this.casts,
+        similars: similars ?? this.similars,
         isLoadingMore: loading ?? isLoadingMore,
         isFavorite: favorite ?? isFavorite);
   }

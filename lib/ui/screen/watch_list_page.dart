@@ -7,6 +7,7 @@ import 'package:moviehub/extension/extensions.dart';
 import '../../../resources/resources.dart';
 import '../../data/model/models.dart';
 import '../components/components.dart';
+import 'screens.dart';
 
 class WatchListPage extends StatefulWidget {
   const WatchListPage({super.key});
@@ -33,11 +34,7 @@ class _WatchListPageState extends State<WatchListPage> {
     return BlocBuilder<WatchListCubit, WatchListState>(
         builder: (context, state) {
       if (state is WatchListLoadingState) {
-        return const SizedBox(
-          width: double.infinity,
-          height: double.infinity,
-          child: CircularProgressIndicator(),
-        );
+        return const Center(child: CircularProgressIndicator());
       }
       final loadedState = cast<WatchListLoadedState>(state);
       if (state is WatchListLoadFailure ||
@@ -84,8 +81,16 @@ class _WatchListPageState extends State<WatchListPage> {
           left: Sizes.size22, right: Sizes.size20, top: Sizes.size22),
       itemCount: state.favorites.length,
       itemBuilder: (BuildContext context, int index) {
+        final movie = Movie.fromFavorite(state.favorites[index]);
         return ItemMovieInformation(
-            movie: Movie.fromFavorite(state.favorites[index]));
+          movie: movie,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => DetailPage(movie: movie)),
+            ).then((value) => _cubit.getWatchList());
+          },
+        );
       },
       separatorBuilder: (BuildContext context, int index) {
         return const SizedBox(height: Sizes.size24);

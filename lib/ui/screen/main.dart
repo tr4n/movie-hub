@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:moviehub/extension/context_ext.dart';
 import 'package:moviehub/ui/components/components.dart';
+import 'package:path/path.dart';
 
 import '../../di/locator.dart';
 import '../../resources/resources.dart';
 import 'screens.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await setupLocator();
   runApp(const App());
 }

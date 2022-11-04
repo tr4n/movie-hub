@@ -52,7 +52,7 @@ class Movie {
       posterPath: posterPath ?? "",
       title: title ?? "",
       voteAverage: voteAverage,
-      genes: allGenres,
+      genes: listGenresString(),
       releaseYear: releaseDate ?? "",
       runTime: runtime ?? 0,
     );

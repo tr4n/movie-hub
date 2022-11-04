@@ -22,7 +22,12 @@ class _DetailPageState extends State<DetailPage> {
   int _selectedTabIndex = 0;
   static const double _endReachedThreshold = 200;
   final ScrollController _scrollController = ScrollController();
-  final _tabs = const [DetailTab.aboutMovie, DetailTab.reviews, DetailTab.cast];
+  final _tabs = const [
+    DetailTab.aboutMovie,
+    DetailTab.reviews,
+    DetailTab.cast,
+    DetailTab.similar
+  ];
   final _cubit = DetailCubit();
 
   @override
@@ -32,7 +37,8 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   void _onScroll() {
-    if (_selectedTabIndex != DetailTab.reviews.id) return;
+    if (_selectedTabIndex != DetailTab.reviews.id &&
+        _selectedTabIndex != DetailTab.similar.id) return;
     final isLoading =
         cast<DetailLoadedState>(_cubit.state)?.isLoadingMore == true;
     if (!_scrollController.hasClients || isLoading) return;
@@ -41,7 +47,7 @@ class _DetailPageState extends State<DetailPage> {
         _scrollController.position.extentAfter < _endReachedThreshold;
 
     if (thresholdReached) {
-      _cubit.loadReviewData(widget.movie.id);
+      _cubit.loadMoreData(widget.movie.id, _tabs[_selectedTabIndex].id);
     }
   }
 
@@ -71,13 +77,16 @@ class _DetailPageState extends State<DetailPage> {
           ),
           centerTitle: true,
           actions: [
-            Image.asset(
-              loadedState?.isFavorite == true
-                  ? "assets/icons/ic_book_mark_filled.png"
-                  : "assets/icons/ic_book_mark.png",
-              color: Colors.white,
-              width: Sizes.size18,
-              height: Sizes.size24,
+            InkWell(
+              child: Image.asset(
+                loadedState?.isFavorite == true
+                    ? "assets/icons/ic_book_mark_filled.png"
+                    : "assets/icons/ic_book_mark.png",
+                color: Colors.white,
+                width: Sizes.size18,
+                height: Sizes.size24,
+              ),
+              onTap: () => _cubit.markFavoriteOrNot(),
             ),
             const SizedBox(width: Sizes.size24),
           ],
@@ -98,6 +107,9 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   Widget _detailBodyContent(DetailState state) {
+    if (state is DetailLoadingState) {
+      return const Center(child: CircularProgressIndicator());
+    }
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       controller: _scrollController,
@@ -112,13 +124,17 @@ class _DetailPageState extends State<DetailPage> {
               ? _buildAboutMovie(state)
               : _selectedTabIndex == DetailTab.reviews.id
                   ? _buildReviews(state)
-                  : _buildCasts(state),
+                  : _selectedTabIndex == DetailTab.cast.id
+                      ? _buildCasts(state)
+                      : _buildSimilarMovies(state),
         ],
       ),
     );
   }
 
   Widget _buildMovieBackdrop(DetailState state) {
+    final loadedState = cast<DetailLoadedState>(state);
+
     return Stack(
       children: [
         SizedBox(width: context.getWidth(), height: 270),
@@ -128,8 +144,8 @@ class _DetailPageState extends State<DetailPage> {
             bottomRight: Radius.circular(Sizes.size16),
           ),
           child: Image.network(
-            widget.movie.backdropPath != null
-                ? "${Urls.w500ImagePath}${widget.movie.backdropPath}"
+            loadedState?.movie.backdropPath != null
+                ? "${Urls.w500ImagePath}${loadedState?.movie.backdropPath}"
                 : "https://api.lorem.space/image/movie?w=375&h=210",
             width: double.infinity,
             height: 210,
@@ -146,8 +162,8 @@ class _DetailPageState extends State<DetailPage> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(Sizes.size16),
                 child: Image.network(
-                  widget.movie.posterPath != null
-                      ? "${Urls.w500ImagePath}${widget.movie.posterPath}"
+                  loadedState?.movie.posterPath != null
+                      ? "${Urls.w500ImagePath}${loadedState?.movie.posterPath}"
                       : "https://api.lorem.space/image/movie?w=95&h=120",
                   width: 95,
                   height: 120,
@@ -164,7 +180,7 @@ class _DetailPageState extends State<DetailPage> {
                     child: DefaultTextStyle(
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.w700),
-                      child: Text(widget.movie.title ?? ""),
+                      child: Text(loadedState?.movie.title ?? ""),
                     ),
                   )
                 ],
@@ -199,7 +215,8 @@ class _DetailPageState extends State<DetailPage> {
                       color: AppColor.orangeFF8700,
                       fontWeight: FontWeight.bold,
                     ),
-                    child: Text(widget.movie.voteAverage.toString()),
+                    child:
+                        Text(loadedState?.movie.voteAverage.toString() ?? ""),
                   ),
                 ],
               )),
@@ -225,7 +242,7 @@ class _DetailPageState extends State<DetailPage> {
             const SizedBox(width: Sizes.size4),
             DefaultTextStyle(
               style: TextStyle(fontSize: 12, color: AppColor.gray696974),
-              child: Text(widget.movie.releaseDate?.take(4) ?? ""),
+              child: Text(loadedState?.movie.releaseDate?.take(4) ?? ""),
             ),
           ],
         ),
@@ -302,7 +319,7 @@ class _DetailPageState extends State<DetailPage> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          widget.movie.originalTitle != widget.movie.title
+          loadedState?.movie.originalTitle != loadedState?.movie.title
               ? DefaultTextStyle(
                   style: const TextStyle(
                       fontSize: 14,
@@ -443,6 +460,58 @@ class _DetailPageState extends State<DetailPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSimilarMovies(DetailState state) {
+    final loadedState = cast<DetailLoadedState>(state);
+    final similarMovies = loadedState?.similars ?? List.empty();
+    return Container(
+      margin: const EdgeInsets.only(
+          top: Sizes.size24, left: Sizes.size24, right: Sizes.size24),
+      child: similarMovies.isEmpty
+          ? const DefaultTextStyle(
+              style: TextStyle(fontSize: 12, color: Colors.white, height: 1.5),
+              child: Text("No movies"),
+            )
+          : Column(
+              children: [
+                GridView.count(
+                  shrinkWrap: true,
+                  primary: false,
+                  padding: const EdgeInsets.all(8),
+                  crossAxisCount: 3,
+                  mainAxisSpacing: 18,
+                  crossAxisSpacing: 14,
+                  childAspectRatio: 100 / 145,
+                  children: similarMovies.map((movie) {
+                    return InkWell(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(Sizes.size16),
+                        child: Image.network(
+                          movie.posterPath != null
+                              ? "${Urls.w342ImagePath}${movie.posterPath}"
+                              : "https://api.lorem.space/image/movie?w=100&h=145",
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => DetailPage(movie: movie)),
+                        );
+                      },
+                    );
+                  }).toList(),
+                ),
+                SizedBox(
+                  child: loadedState?.isLoadingMore == true
+                      ? const CircularProgressIndicator()
+                      : null,
+                )
+              ],
+            ),
     );
   }
 }

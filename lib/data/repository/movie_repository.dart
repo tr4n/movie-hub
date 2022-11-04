@@ -2,7 +2,6 @@ import 'package:moviehub/data/model/movie.dart';
 
 import '../platform/network/api/api.dart';
 import '../platform/network/response/responses.dart';
-import '../platform/network/response/reviews_response.dart';
 
 class MovieRepository {
   final MovieApi api;
@@ -47,5 +46,9 @@ class MovieRepository {
 
   Future<MoviesResponse> searchMovies(String query, int page) async {
     return api.searchMovies(query, page);
+  }
+
+  Future<MoviesResponse> getSimilarMovies(int id, int page) async {
+    return api.getSimilarMovies(id, page);
   }
 }

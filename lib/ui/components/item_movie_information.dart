@@ -37,7 +37,7 @@ class ItemMovieInformation extends StatelessWidget {
                 children: [
                   DefaultTextStyle(
                     style: const TextStyle(fontSize: 16),
-                    child: Text(movie.originalTitle ?? ""),
+                    child: Text(movie.title ?? ""),
                   ),
                   Column(
                     children: [

@@ -9,15 +9,10 @@ part 'database.g.dart';
 
 @Database(version: 1, entities: [Favorite])
 abstract class AppDatabase extends FloorDatabase {
-  // static AppDatabase? instance;
 
   FavoriteDao get favoriteDao;
 
-  // static get instance async {
-  //   return _database ??= await _$AppDatabaseBuilder("movie_hub.db").build();
-  // }
-
-  static Future<AppDatabase> getInstance() {
+  static Future<AppDatabase> getInstance() async {
     return $FloorAppDatabase.databaseBuilder("movie_hub.db").build();
   }
 }
