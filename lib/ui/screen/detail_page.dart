@@ -3,9 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moviehub/blocs/detail_bloc/detail_cubit.dart';
 import 'package:moviehub/blocs/detail_bloc/detail_state.dart';
 import 'package:moviehub/common/type/detail_tab.dart';
-import 'package:moviehub/extension/context_ext.dart';
+import 'package:moviehub/extension/extensions.dart';
 
-import '../../common/common.dart';
 import '../../data/model/models.dart';
 import '../../data/platform/network/api/urls.dart';
 import '../../resources/resources.dart';
@@ -22,23 +21,24 @@ class DetailPage extends StatefulWidget {
 class _DetailPageState extends State<DetailPage> {
   int _selectedTabIndex = 0;
   static const double _endReachedThreshold = 200;
-  final ScrollController _controller = ScrollController();
-  final _tabs = ["About Movie", "Reviews", "Cast"];
+  final ScrollController _scrollController = ScrollController();
+  final _tabs = const [DetailTab.aboutMovie, DetailTab.reviews, DetailTab.cast];
   final _cubit = DetailCubit();
 
   @override
   void initState() {
-    _controller.addListener(_onScroll);
+    _scrollController.addListener(_onScroll);
     super.initState();
   }
 
   void _onScroll() {
+    if (_selectedTabIndex != DetailTab.reviews.id) return;
     final isLoading =
         cast<DetailLoadedState>(_cubit.state)?.isLoadingMore == true;
-    if (!_controller.hasClients || isLoading) return;
+    if (!_scrollController.hasClients || isLoading) return;
 
     final thresholdReached =
-        _controller.position.extentAfter < _endReachedThreshold;
+        _scrollController.position.extentAfter < _endReachedThreshold;
 
     if (thresholdReached) {
       _cubit.loadReviewData(widget.movie.id);
@@ -71,8 +71,14 @@ class _DetailPageState extends State<DetailPage> {
           ),
           centerTitle: true,
           actions: [
-            Image.asset("assets/icons/ic_book_mark_filled.png",
-                width: Sizes.size18, height: Sizes.size24),
+            Image.asset(
+              loadedState?.isFavorite == true
+                  ? "assets/icons/ic_book_mark_filled.png"
+                  : "assets/icons/ic_book_mark.png",
+              color: Colors.white,
+              width: Sizes.size18,
+              height: Sizes.size24,
+            ),
             const SizedBox(width: Sizes.size24),
           ],
           title: const DefaultTextStyle(
@@ -86,23 +92,30 @@ class _DetailPageState extends State<DetailPage> {
           backgroundColor: AppColor.gray242A32,
           elevation: 0,
         ),
-        body: Column(
-          children: [
-            _buildMovieBackdrop(state),
-            const SizedBox(height: Sizes.size16),
-            _buildMovieInformation(state),
-            const SizedBox(height: Sizes.size16),
-            _buildTabs(state),
-            Expanded(
-                child: _selectedTabIndex == DetailTab.aboutMovie.id
-                    ? _buildAboutMovie(state)
-                    : _selectedTabIndex == DetailTab.reviews.id
-                        ? _buildReviews(state)
-                        : _buildCasts(state)),
-          ],
-        ),
+        body: _detailBodyContent(state),
       );
     });
+  }
+
+  Widget _detailBodyContent(DetailState state) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      controller: _scrollController,
+      child: Column(
+        children: [
+          _buildMovieBackdrop(state),
+          const SizedBox(height: Sizes.size16),
+          _buildMovieInformation(state),
+          const SizedBox(height: Sizes.size16),
+          _buildTabs(state),
+          _selectedTabIndex == DetailTab.aboutMovie.id
+              ? _buildAboutMovie(state)
+              : _selectedTabIndex == DetailTab.reviews.id
+                  ? _buildReviews(state)
+                  : _buildCasts(state),
+        ],
+      ),
+    );
   }
 
   Widget _buildMovieBackdrop(DetailState state) {
@@ -114,12 +127,11 @@ class _DetailPageState extends State<DetailPage> {
             bottomLeft: Radius.circular(Sizes.size16),
             bottomRight: Radius.circular(Sizes.size16),
           ),
-          child: FadeInImage.assetNetwork(
-            placeholder: "assets/images/img_placeholder.png",
-            image: widget.movie.backdropPath != null
+          child: Image.network(
+            widget.movie.backdropPath != null
                 ? "${Urls.w500ImagePath}${widget.movie.backdropPath}"
                 : "https://api.lorem.space/image/movie?w=375&h=210",
-            width: context.getWidth(),
+            width: double.infinity,
             height: 210,
             fit: BoxFit.cover,
           ),
@@ -134,7 +146,6 @@ class _DetailPageState extends State<DetailPage> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(Sizes.size16),
                 child: Image.network(
-                  // placeholder: "assets/images/img_placeholder.png",
                   widget.movie.posterPath != null
                       ? "${Urls.w500ImagePath}${widget.movie.posterPath}"
                       : "https://api.lorem.space/image/movie?w=95&h=120",
@@ -144,20 +155,26 @@ class _DetailPageState extends State<DetailPage> {
                 ),
               ),
               const SizedBox(width: Sizes.size12),
-              Padding(
-                padding: const EdgeInsets.only(bottom: Sizes.size8),
-                child: DefaultTextStyle(
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                  child: Text(widget.movie.originalTitle ?? ""),
-                ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(height: Sizes.size8),
+                  SizedBox(
+                    width: context.getWidth() * 0.6,
+                    child: DefaultTextStyle(
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w700),
+                      child: Text(widget.movie.title ?? ""),
+                    ),
+                  )
+                ],
               ),
               const SizedBox(width: Sizes.size30),
             ],
           ),
         ),
         Positioned(
-          top: 178,
+          top: 8,
           right: 12,
           child: Container(
               padding: const EdgeInsets.symmetric(
@@ -208,7 +225,7 @@ class _DetailPageState extends State<DetailPage> {
             const SizedBox(width: Sizes.size4),
             DefaultTextStyle(
               style: TextStyle(fontSize: 12, color: AppColor.gray696974),
-              child: Text(widget.movie.releaseDate?.substring(0, 4) ?? ""),
+              child: Text(widget.movie.releaseDate?.take(4) ?? ""),
             ),
           ],
         ),
@@ -266,9 +283,9 @@ class _DetailPageState extends State<DetailPage> {
           indicatorColor: AppColor.gray3A3F47,
           indicatorPadding: const EdgeInsets.only(
               top: Sizes.size16, left: Sizes.size16, right: Sizes.size16),
-          tabs: _tabs.map((e) => Tab(text: e)).toList(),
+          tabs: _tabs.map((tab) => Tab(text: tab.name)).toList(),
           onTap: (index) {
-            _cubit.changeTab(widget.movie.id, index);
+            _cubit.changeTab(widget.movie.id, _tabs[index].id);
           },
         ),
       ),
@@ -279,10 +296,28 @@ class _DetailPageState extends State<DetailPage> {
     final loadedState = cast<DetailLoadedState>(state);
 
     return Container(
-      margin: const EdgeInsets.all(Sizes.size24),
-      child: DefaultTextStyle(
-        style: const TextStyle(fontSize: 12, color: Colors.white, height: 1.5),
-        child: Text(loadedState?.movie.overview ?? ""),
+      margin: const EdgeInsets.only(
+          left: Sizes.size24, top: Sizes.size24, right: Sizes.size24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          widget.movie.originalTitle != widget.movie.title
+              ? DefaultTextStyle(
+                  style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
+                  child: Text(widget.movie.originalTitle ?? ""),
+                )
+              : const SizedBox(),
+          const SizedBox(height: Sizes.size8),
+          DefaultTextStyle(
+            style:
+                const TextStyle(fontSize: 12, color: Colors.white, height: 1.5),
+            child: Text(loadedState?.movie.overview ?? ""),
+          ),
+        ],
       ),
     );
   }
@@ -293,14 +328,20 @@ class _DetailPageState extends State<DetailPage> {
     return Container(
       margin: const EdgeInsets.only(
           top: Sizes.size24, left: Sizes.size24, right: Sizes.size24),
-      child: ListView.builder(
-        scrollDirection: Axis.vertical,
-        controller: _controller,
-        itemCount: reviews.length,
-        itemBuilder: (context, index) {
-          return _itemReview(reviews[index]);
-        },
-      ),
+      child: reviews.isEmpty
+          ? const DefaultTextStyle(
+              style: TextStyle(fontSize: 12, color: Colors.white, height: 1.5),
+              child: Text("No reviews"),
+            )
+          : ListView.builder(
+              scrollDirection: Axis.vertical,
+              primary: false,
+              shrinkWrap: true,
+              itemCount: reviews.length,
+              itemBuilder: (context, index) {
+                return _itemReview(reviews[index]);
+              },
+            ),
     );
   }
 
@@ -312,11 +353,11 @@ class _DetailPageState extends State<DetailPage> {
     return GridView.count(
       shrinkWrap: true,
       primary: false,
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(Sizes.size8),
       crossAxisCount: 3,
-      mainAxisSpacing: 18,
-      crossAxisSpacing: 14,
-      childAspectRatio: 100 / 145,
+      mainAxisSpacing: Sizes.size8,
+      crossAxisSpacing: Sizes.size8,
+      childAspectRatio: 100 / 123,
       children: loadedState.casts.map(_buildItemCast).toList(),
     );
   }

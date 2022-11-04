@@ -33,11 +33,39 @@ class Movie {
   @JsonKey(name: "genres")
   List<Genre>? genres = List.empty();
 
-  Movie();
+  @JsonKey(ignore: true)
+  String allGenres = "";
+
+  Movie() {
+    allGenres = listGenresString();
+  }
 
   String getReleaseYear() => releaseDate?.substring(0, 4) ?? "";
 
-  String listGenresString() => genres?.map((e) => e.name ).join(", ") ?? "";
+  String listGenresString() => genres?.map((e) => e.name).join(", ") ?? "";
 
   factory Movie.fromJson(Map<String, dynamic> json) => _$MovieFromJson(json);
+
+  Favorite toFavorite() {
+    return Favorite(
+      id: id,
+      posterPath: posterPath ?? "",
+      title: title ?? "",
+      voteAverage: voteAverage,
+      genes: allGenres,
+      releaseYear: releaseDate ?? "",
+      runTime: runtime ?? 0,
+    );
+  }
+
+  static Movie fromFavorite(Favorite favorite) {
+    return Movie()
+      ..id = favorite.id
+      ..posterPath = favorite.posterPath
+      ..title = favorite.title
+      ..voteAverage = favorite.voteAverage
+      ..allGenres = favorite.genes
+      ..releaseDate = favorite.releaseYear
+      ..runtime = favorite.runTime;
+  }
 }

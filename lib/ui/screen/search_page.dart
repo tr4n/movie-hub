@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moviehub/blocs/search_bloc/search_cubit.dart';
@@ -6,7 +8,8 @@ import 'package:moviehub/ui/components/components.dart';
 import 'package:moviehub/ui/screen/detail_page.dart';
 
 import '../../../resources/resources.dart';
-import '../../common/extension/collection_ext.dart';
+import '../../data/model/models.dart';
+import '../../extension/extensions.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -18,6 +21,24 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   final _cubit = SearchCubit();
   final _textController = TextEditingController();
+  Timer? _debounce;
+
+  _onSearchChanged(String query) {
+    if (query.length < 3) return;
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      _cubit.search(query);
+    });
+  }
+
+  _onNavigateToDetail(Movie movie) {
+    _textController.text = "";
+    FocusManager.instance.primaryFocus?.unfocus();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => DetailPage(movie: movie)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +50,17 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget _searchBody() {
     return BlocBuilder<SearchCubit, SearchState>(builder: (context, state) {
-      return Column(
-        children: [
-          _buildSearchBar(),
-          _buildSearchContent(state),
-          const SizedBox(height: Sizes.size16),
-        ],
+      return GestureDetector(
+        onTap: () {
+          context.hideKeyboard();
+        },
+        child: Column(
+          children: [
+            _buildSearchBar(),
+            _buildSearchContent(state),
+            const SizedBox(height: Sizes.size16),
+          ],
+        ),
       );
     });
   }
@@ -53,9 +79,11 @@ class _SearchPageState extends State<SearchPage> {
           prefixIcon:
               Icon(Icons.search, color: Colors.white54, size: Sizes.size16),
         ),
+        textInputAction: TextInputAction.search,
         style: const TextStyle(fontSize: 14, color: Colors.white),
-        onChanged: (text) {
-          _cubit.search(_textController.text);
+        onChanged: _onSearchChanged,
+        onEditingComplete: () {
+          FocusManager.instance.primaryFocus?.unfocus();
         },
       ),
     );
@@ -83,14 +111,7 @@ class _SearchPageState extends State<SearchPage> {
         itemBuilder: (BuildContext context, int index) {
           return ItemMovieInformation(
             movie: state.movies[index],
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        DetailPage(movie: state.movies[index])),
-              );
-            },
+            onTap: () => _onNavigateToDetail(state.movies[index]),
           );
         },
         separatorBuilder: (BuildContext context, int index) {
@@ -132,5 +153,11 @@ class _SearchPageState extends State<SearchPage> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
   }
 }

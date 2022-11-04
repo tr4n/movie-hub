@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moviehub/blocs/detail_bloc/detail_state.dart';
 import 'package:moviehub/common/common.dart';
+import 'package:moviehub/data/repository/favorite_repository.dart';
 
 import '../../common/error_handler.dart';
 import '../../common/type/detail_tab.dart';
@@ -11,6 +12,7 @@ class DetailCubit extends Cubit<DetailState> {
   int _currentPage = 0;
   int _totalPage = 0;
   final MovieRepository _movieRepository = locator<MovieRepository>();
+  final FavoriteRepository _favoriteRepository = locator<FavoriteRepository>();
 
   DetailCubit() : super(DetailInitializedState());
 
@@ -19,7 +21,8 @@ class DetailCubit extends Cubit<DetailState> {
 
     try {
       final movie = await _movieRepository.getDetailMovie(id);
-      emit(DetailLoadedState(movie: movie));
+      final isFavorite = (await _favoriteRepository.getFavorite(id))?.id == id;
+      emit(DetailLoadedState(movie: movie, isFavorite: isFavorite));
     } catch (exception) {
       final response = handelError(exception);
       emit(DetailLoadFailure(response));
@@ -67,6 +70,22 @@ class DetailCubit extends Cubit<DetailState> {
         return;
       }
       emit(loadedState.copyWith(tabId: type));
+    } catch (exception) {
+      final response = handelError(exception);
+      emit(DetailLoadFailure(response));
+    }
+  }
+
+  Future<void> markFavoriteOrNot() async {
+    final loadedState = cast<DetailLoadedState>(state);
+    if (loadedState == null) return;
+    try {
+      if (loadedState.isFavorite) {
+        await _favoriteRepository.removeFavorite(loadedState.movie.id);
+      } else {
+        await _favoriteRepository.addFavorite(loadedState.movie.toFavorite());
+      }
+      emit(loadedState.copyWith(favorite: !loadedState.isFavorite));
     } catch (exception) {
       final response = handelError(exception);
       emit(DetailLoadFailure(response));

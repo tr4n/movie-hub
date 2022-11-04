@@ -1,6 +1,7 @@
-export 'movie.dart';
-export 'genre.dart';
 export 'author.dart';
-export 'review.dart';
 export 'cast.dart';
 export 'crew.dart';
+export 'favorite.dart';
+export 'genre.dart';
+export 'movie.dart';
+export 'review.dart';

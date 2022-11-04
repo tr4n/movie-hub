@@ -23,4 +23,8 @@ extension ContextUtils on BuildContext {
       currentFocus.focusedChild?.unfocus();
     }
   }
+
+  void hideKeyboard() {
+    FocusScope.of(this).requestFocus(FocusNode());
+  }
 }

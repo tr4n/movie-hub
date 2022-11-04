@@ -7,8 +7,8 @@ import '../../di/locator.dart';
 import '../../resources/resources.dart';
 import 'screens.dart';
 
-void main() {
-  setupLocator();
+void main() async {
+  await setupLocator();
   runApp(const App());
 }
 

@@ -37,7 +37,7 @@ class ItemMovieInformation extends StatelessWidget {
                 children: [
                   DefaultTextStyle(
                     style: const TextStyle(fontSize: 16),
-                    child: Text(movie.title ?? ""),
+                    child: Text(movie.originalTitle ?? ""),
                   ),
                   Column(
                     children: [
@@ -71,7 +71,7 @@ class ItemMovieInformation extends StatelessWidget {
                           DefaultTextStyle(
                             style: const TextStyle(
                                 fontSize: 12, color: Colors.white),
-                            child: Text(movie.listGenresString()),
+                            child: Text(movie.allGenres),
                           ),
                         ],
                       ),

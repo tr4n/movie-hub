@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:moviehub/extension/context_ext.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moviehub/blocs/watch_list_bloc/watch_list_cubit.dart';
+import 'package:moviehub/blocs/watch_list_bloc/watch_list_state.dart';
+import 'package:moviehub/extension/extensions.dart';
 
 import '../../../resources/resources.dart';
 import '../../data/model/models.dart';
@@ -13,14 +16,38 @@ class WatchListPage extends StatefulWidget {
 }
 
 class _WatchListPageState extends State<WatchListPage> {
-  List<String> movies = List.empty();
+  final _cubit = WatchListCubit();
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: context.getWidth(),
-      child: movies.isEmpty ? _buildEmptyWatchList() : _buildWatchListMovie(),
+    return BlocProvider<WatchListCubit>(
+      create: (context) => _cubit..getWatchList(),
+      child: SizedBox(
+        width: context.getWidth(),
+        child: _watchListBody(),
+      ),
     );
+  }
+
+  Widget _watchListBody() {
+    return BlocBuilder<WatchListCubit, WatchListState>(
+        builder: (context, state) {
+      if (state is WatchListLoadingState) {
+        return const SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+          child: CircularProgressIndicator(),
+        );
+      }
+      final loadedState = cast<WatchListLoadedState>(state);
+      if (state is WatchListLoadFailure ||
+          loadedState?.favorites.isNotEmpty != true) {
+        return _buildEmptyWatchList();
+      }
+      return loadedState != null
+          ? _buildWatchListMovie(loadedState)
+          : const SizedBox();
+    });
   }
 
   Widget _buildEmptyWatchList() {
@@ -49,15 +76,16 @@ class _WatchListPageState extends State<WatchListPage> {
     );
   }
 
-  Widget _buildWatchListMovie() {
+  Widget _buildWatchListMovie(WatchListLoadedState state) {
     return ListView.separated(
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
       padding: const EdgeInsets.only(
           left: Sizes.size22, right: Sizes.size20, top: Sizes.size22),
-      itemCount: movies.length,
+      itemCount: state.favorites.length,
       itemBuilder: (BuildContext context, int index) {
-        return ItemMovieInformation(movie: Movie());
+        return ItemMovieInformation(
+            movie: Movie.fromFavorite(state.favorites[index]));
       },
       separatorBuilder: (BuildContext context, int index) {
         return const SizedBox(height: Sizes.size24);
