@@ -90,13 +90,18 @@ class _DetailPageState extends State<DetailPage> {
             ),
             const SizedBox(width: Sizes.size24),
           ],
-          title: const DefaultTextStyle(
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+          title: Container(
+            alignment: Alignment.center,
+            width: context.getWidth() * 0.7,
+            child: DefaultTextStyle(
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+              child: Text(widget.movie.title ?? "Movie"),
             ),
-            child: Text("Movie"),
           ),
           backgroundColor: AppColor.gray242A32,
           elevation: 0,

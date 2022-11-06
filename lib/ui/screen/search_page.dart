@@ -50,17 +50,12 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget _searchBody() {
     return BlocBuilder<SearchCubit, SearchState>(builder: (context, state) {
-      return GestureDetector(
-        onTap: () {
-          context.hideKeyboard();
-        },
-        child: Column(
-          children: [
-            _buildSearchBar(),
-            _buildSearchContent(state),
-            const SizedBox(height: Sizes.size16),
-          ],
-        ),
+      return Column(
+        children: [
+          _buildSearchBar(),
+          _buildSearchContent(state),
+          const SizedBox(height: Sizes.size16),
+        ],
       );
     });
   }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:moviehub/extension/context_ext.dart';
 import 'package:moviehub/ui/components/components.dart';
-import 'package:path/path.dart';
 
 import '../../di/locator.dart';
 import '../../resources/resources.dart';
@@ -96,20 +95,27 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    return GestureDetector(
+      child: _mainBodyContent(),
+      onTap: () => context.hideKeyboard(),
+    );
+  }
+
+  Widget _mainBodyContent() {
     return Scaffold(
       appBar: AppBar(
         leading: _selectedIndex > 2
             ? Padding(
-                padding: const EdgeInsets.all(Sizes.size8),
-                child: Image.asset("assets/icons/ic_left_arrow.png",
-                    width: Sizes.size20, height: Sizes.size20))
+            padding: const EdgeInsets.all(Sizes.size8),
+            child: Image.asset("assets/icons/ic_left_arrow.png",
+                width: Sizes.size20, height: Sizes.size20))
             : null,
         centerTitle: _selectedIndex != 0,
         actions: _selectedIndex > 2
             ? [
-                Image.asset("assets/icons/ic_information.png",
-                    width: 36, height: 36),
-              ]
+          Image.asset("assets/icons/ic_information.png",
+              width: 36, height: 36),
+        ]
             : null,
         title: DefaultTextStyle(
           style: const TextStyle(
@@ -125,14 +131,15 @@ class _MainPageState extends State<MainPage> {
       body: _screens[_selectedIndex].page,
       bottomNavigationBar: Wrap(children: [
         Container(
-          width: context.getWidth(),
+          width: double.infinity,
           height: 1.0,
           color: AppColor.blue0296E5,
         ),
         BottomNavigationBar(
           items: _screens
               .map(
-                (screen) => BottomNavigationBarItem(
+                (screen) =>
+                BottomNavigationBarItem(
                   icon: Padding(
                     padding: const EdgeInsets.all(Sizes.size8),
                     child: Image.asset(
@@ -144,7 +151,7 @@ class _MainPageState extends State<MainPage> {
                   ),
                   label: screen.name,
                 ),
-              )
+          )
               .toList(),
           onTap: _onItemTap,
           currentIndex: _selectedIndex,
